@@ -94,11 +94,11 @@ def test_get_top_weekly_posts(
 
     posts = reddit_client.get_top_weekly_posts("test", limit=1)
 
-    # Verify API call parameters
+    # Verify API call parameters (headers are now set on the session, not passed here)
     mock_get.assert_called_once_with(
         "https://www.reddit.com/r/test/top.json",
-        params={"t": "week", "limit": 1},
-        headers={"User-Agent": "TestBot/1.0"}
+        params={"t": "week", "limit": 1}
+        # Removed headers assertion: headers={"User-Agent": "TestBot/1.0"}
     )
 
     assert len(posts) == 1
@@ -129,11 +129,11 @@ def test_get_top_monthly_posts(
 
     posts = reddit_client.get_top_monthly_posts("test", limit=1)
 
-    # Verify API call parameters
+    # Verify API call parameters (headers are now set on the session, not passed here)
     mock_get.assert_called_once_with(
         "https://www.reddit.com/r/test/top.json",
-        params={"t": "month", "limit": 1}, # Check timeframe 'month'
-        headers={"User-Agent": "TestBot/1.0"}
+        params={"t": "month", "limit": 1} # Check timeframe 'month'
+        # Removed headers assertion: headers={"User-Agent": "TestBot/1.0"}
     )
 
     assert len(posts) == 1
@@ -154,18 +154,14 @@ def test_get_top_posts_filters_promoted_and_limit(
     # Request 2 posts, but mock response has 2 non-promoted and 1 promoted
     posts = reddit_client.get_top_weekly_posts("test", limit=2)
 
-    # Verify API call parameters (limit passed to API)
+    # Verify API call parameters (limit passed to API, headers set on session)
     mock_get.assert_called_once_with(
         "https://www.reddit.com/r/test/top.json",
-        params={"t": "week", "limit": 2},
-        headers={"User-Agent": "TestBot/1.0"}
+        params={"t": "week", "limit": 2}
+        # Removed headers assertion: headers={"User-Agent": "TestBot/1.0"}
     )
 
     # Client should filter the promoted post from the API response
-    # NOTE: The current implementation fetches 'limit' posts and then filters.
-    # If the API returns 'limit' posts including promoted ones, the result might be less than 'limit'.
-    # This test assumes the API returns enough non-promoted posts within the initial fetch.
-    # If the API returned 1 non-promoted and 1 promoted for limit=2, len(posts) would be 1.
     # Given mock_response_multiple has 2 non-promoted first, this works.
     assert len(posts) == 2 # Should return only the 2 non-promoted posts
     assert all(not post.is_promoted for post in posts)
@@ -214,18 +210,48 @@ def test_get_top_posts_empty_response(
     """Test handling of an empty or malformed API response."""
     mock_get = mocker.patch.object(reddit_client.session, "get")
     mock_get.return_value.raise_for_status.return_value = None
+    
     # Simulate empty 'children' list
     mock_get.return_value.json.return_value = {"data": {"children": []}}
-
-    posts = reddit_client.get_top_weekly_posts("test", limit=1)
-
-    assert len(posts) == 0 # Should return an empty list
+    posts_empty_children = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_empty_children == [] # Should return an empty list
 
     # Test malformed response (missing 'data' or 'children')
+    # The refactored client now returns [] instead of raising KeyError
     mock_get.return_value.json.return_value = {} # Missing 'data'
-    with pytest.raises(KeyError): # Expecting a KeyError when parsing
-        reddit_client.get_top_weekly_posts("test", limit=1)
+    posts_missing_data = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_missing_data == [] # Should return empty list
 
     mock_get.return_value.json.return_value = {"data": {}} # Missing 'children'
-    with pytest.raises(KeyError): # Expecting a KeyError when parsing
-        reddit_client.get_top_weekly_posts("test", limit=1)
+    posts_missing_children = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_missing_children == [] # Should return empty list
+
+    # Test malformed response (children is not a list)
+    mock_get.return_value.json.return_value = {"data": {"children": "not_a_list"}}
+    posts_children_not_list = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_children_not_list == [] # Should return empty list
+    
+    # Test malformed response (child item is not a dict)
+    mock_get.return_value.json.return_value = {"data": {"children": ["not_a_dict"]}}
+    posts_child_not_dict = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_child_not_dict == [] # Should return empty list
+
+    # Test malformed response (child['data'] is not a dict)
+    mock_get.return_value.json.return_value = {"data": {"children": [{"data": "not_a_dict"}]}}
+    posts_child_data_not_dict = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_child_data_not_dict == [] # Should return empty list
+    
+    # Test malformed response (missing essential key like 'permalink')
+    mock_post_missing_key = {
+        "title": "Test Post Missing Key",
+        # "permalink": "/r/test/comments/abc/test_post_missing", # Missing permalink
+        "score": 50,
+        "created_utc": datetime.now().timestamp(),
+        "author": "test_user_missing",
+        "promoted": False,
+        "subreddit": "test",
+        "selftext": "Body"
+    }
+    mock_get.return_value.json.return_value = {"data": {"children": [{"data": mock_post_missing_key}]}}
+    posts_missing_key = reddit_client.get_top_weekly_posts("test", limit=1)
+    assert posts_missing_key == [] # Should return empty list because essential key is missing
