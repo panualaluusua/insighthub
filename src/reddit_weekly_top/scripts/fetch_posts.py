@@ -13,10 +13,6 @@ from dotenv import load_dotenv
 
 from reddit_weekly_top.config import config
 from reddit_weekly_top.models import RedditPost
-from reddit_weekly_top.notebooklm.source_uploader import (
-    NotebookLMSourceUploader,
-    SourceUploaderConfig,
-)
 from reddit_weekly_top.reddit_client import RedditClient
 
 logger = logging.getLogger(__name__)
@@ -129,36 +125,6 @@ def parse_args(args: Optional[List[str]] = None) -> argparse.Namespace:
         help="Minimum score threshold for posts"
     )
     
-    # NotebookLM options
-    parser.add_argument(
-        "--profile-dir",
-        help="Chrome user profile directory"
-    )
-    parser.add_argument(
-        "--upload-delay",
-        type=float,
-        default=2.0,
-        help="Delay in seconds between URL uploads"
-    )
-    parser.add_argument(
-        "--max-retries",
-        type=int,
-        default=3,
-        help="Maximum number of retries for failed uploads"
-    )
-    parser.add_argument(
-        "--retry-delay",
-        type=float,
-        default=5.0,
-        help="Delay in seconds between retries"
-    )
-    parser.add_argument(
-        "--wait-timeout",
-        type=int,
-        default=10,
-        help="Timeout for WebDriver wait operations"
-    )
-    
     return parser.parse_args(args)
 
 def main(args: Optional[List[str]] = None) -> None:
@@ -197,56 +163,11 @@ def main(args: Optional[List[str]] = None) -> None:
         # Give user a chance to review the fetched posts
         logger.info(
             f"\nURLs have been saved to: {urls_file}"
-            "\nPress Enter to continue with upload, or Ctrl+C to cancel..."
         )
-        try:
-            input()
-        except KeyboardInterrupt:
-            logger.info("Upload cancelled by user")
-            sys.exit(0)
         
-        # Step 2: Configure and run NotebookLM uploader
-        config_kwargs = {
-            "user_profile": parsed_args.profile_dir or os.getenv("CHROME_USER_PROFILE"),
-            "upload_delay": parsed_args.upload_delay,
-            "max_retries": parsed_args.max_retries,
-            "retry_delay": parsed_args.retry_delay,
-            "wait_timeout": parsed_args.wait_timeout,
-            "keep_browser_open": True
-        }
-        
-        try:
-            uploader_config = SourceUploaderConfig.from_file(urls_file, **config_kwargs)
-        except FileNotFoundError:
-            logger.error(f"URL file not found: {urls_file}")
-            sys.exit(1)
-        
-        uploader = NotebookLMSourceUploader(uploader_config)
-        
-        try:
-            logger.info("Starting NotebookLM source upload automation")
-            uploader.start()
-            
-            if uploader.verify_login_success():
-                logger.info("Successfully logged in to NotebookLM")
-                uploader.process_urls()
-                logger.info("Source upload automation completed successfully")
-            else:
-                logger.error("Failed to verify login success")
-                sys.exit(1)
-            
-        except KeyboardInterrupt:
-            logger.info("Operation cancelled by user")
-            sys.exit(0)
-        except Exception as e:
-            logger.error(f"Source upload automation failed: {e}")
-            sys.exit(1)
-        finally:
-            uploader.cleanup()
-            
     except Exception as e:
         logger.error(f"Workflow failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":
-    main() 
+    main()

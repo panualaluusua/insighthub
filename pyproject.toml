@@ -8,8 +8,6 @@ dependencies = [
     "python-dotenv>=1.0.0",
     "pydantic>=2.5.3",
     "praw>=7.7.1",
-    "selenium>=4.17.2",
-    "webdriver-manager>=4.0.1"
 ]
 
 [project.optional-dependencies]
@@ -61,8 +59,6 @@ requests = ">=2.31.0"
 python-dotenv = ">=1.0.0"
 pydantic = ">=2.5.3"
 praw = ">=7.7.1"
-selenium = ">=4.17.2"
-webdriver-manager = ">=4.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.4.4"
@@ -72,4 +68,4 @@ ruff = ">=0.1.14"
 mypy = ">=1.8.0"
 
 [tool.poetry.scripts]
-reddit-weekly-top = "reddit_weekly_top.__main__:main" 
+reddit-fetch-posts = "reddit_weekly_top.scripts.fetch_posts:main"
