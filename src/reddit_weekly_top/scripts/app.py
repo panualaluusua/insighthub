@@ -2,8 +2,12 @@
 
 import streamlit as st
 import pandas as pd
+import os
 from datetime import datetime
 from typing import List, Tuple
+import datetime
+from googleapiclient.discovery import build
+from dotenv import load_dotenv
 
 from reddit_weekly_top.reddit_client import RedditClient
 from reddit_weekly_top.models import RedditPost
@@ -90,6 +94,68 @@ def toggle_all_posts(posts: List[RedditPost], select: bool) -> None:
         st.session_state.selected_posts.update(post.url for post in posts)
     else:
         st.session_state.selected_posts.clear()
+
+# Load environment variables
+load_dotenv()
+API_KEY = os.getenv("YOUTUBE_API")
+
+@st.cache_resource
+def get_youtube_client():
+    """Create or get a cached YouTube API client instance."""
+    return build("youtube", "v3", developerKey=API_KEY)
+
+def fetch_videos_from_channels(channels, timeframe):
+    """Fetch videos from specified YouTube channels within the given timeframe."""
+    youtube = get_youtube_client()
+    videos = []
+    one_week_ago = datetime.datetime.utcnow() - datetime.timedelta(days=7)
+    for channel_name in channels:
+        try:
+            search_response = youtube.search().list(
+                q=channel_name,
+                part="snippet",
+                type="channel",
+                maxResults=1
+            ).execute()
+
+            if not search_response["items"]:
+                st.warning(f"No channel found with the name '{channel_name}'.")
+                continue
+
+            channel_id = search_response["items"][0]["id"]["channelId"]
+            channel_response = youtube.channels().list(
+                part="contentDetails",
+                id=channel_id
+            ).execute()
+
+            uploads_playlist_id = channel_response["items"][0]["contentDetails"]["relatedPlaylists"]["uploads"]
+            next_page_token = None
+
+            while True:
+                playlist_response = youtube.playlistItems().list(
+                    part="snippet",
+                    playlistId=uploads_playlist_id,
+                    maxResults=50,
+                    pageToken=next_page_token
+                ).execute()
+
+                for item in playlist_response["items"]:
+                    video_title = item["snippet"]["title"]
+                    video_url = f"https://www.youtube.com/watch?v={item['snippet']['resourceId']['videoId']}"
+                    published_at = item["snippet"]["publishedAt"]
+                    published_date = datetime.datetime.strptime(published_at, "%Y-%m-%dT%H:%M:%SZ")
+
+                    if published_date >= one_week_ago:
+                        videos.append({"title": video_title, "url": video_url, "published_at": published_date})
+
+                next_page_token = playlist_response.get("nextPageToken")
+                if not next_page_token:
+                    break
+
+        except Exception as e:
+            st.error(f"Error fetching videos from {channel_name}: {str(e)}")
+
+    return videos
 
 def main():
     st.title("Reddit Weekly Top")
@@ -255,6 +321,26 @@ def main():
                 st.sidebar.markdown("### Preview")
                 for post in selected_posts:
                     st.sidebar.text(post.url)
+
+    # Add YouTube integration to the sidebar
+    with st.sidebar:
+        st.header("YouTube Configuration")
+        youtube_channels_input = st.text_area(
+            "YouTube Channels (one per line)",
+            value="AI Jason\nDavid Ondrej\nZen van Riel",
+            help="Enter the names of YouTube channels to fetch videos from."
+        ).strip()
+
+        youtube_channels = youtube_channels_input.split('\n') if youtube_channels_input else []
+
+        fetch_youtube_button = st.button("Fetch YouTube Videos", type="primary")
+
+    if fetch_youtube_button:
+        youtube_videos = fetch_videos_from_channels(youtube_channels, timeframe)
+        if youtube_videos:
+            st.success(f"Fetched {len(youtube_videos)} videos from {len(youtube_channels)} channels.")
+            for video in youtube_videos:
+                st.markdown(f"- [{video['title']}]({video['url']}) (Published: {video['published_at']})")
 
 if __name__ == "__main__":
     main()
