@@ -74,6 +74,7 @@
    - Multiple export formats
    - NotebookLM integration
    - **Prompt Creator for NotebookLM/Summarization**: Develop a tool to generate customized prompts for LLMs based on selected subcategory sources. These prompts will define the structure (e.g., podcast script, bullet points), tone, and focus of the desired summary output from the selected content. (Supports **Active Processing**)
+   - **NotebookLM Podcast Prompt Generator**: Build a Streamlit-based tool that enables users to generate concise, category/topic-specific AI prompts for NotebookLM Audio Overview. The user can select topic, tone, target audience, structure, and length preferences. The tool ensures the prompt stays within the 500 character limit and helps guide the AI podcast generation process based on selected Reddit/YouTube URLs. Enables highly personalized, high-quality AI podcasts directly from the aggregated content.
    - API endpoint for external tools
    - Backup/restore functionality
 

@@ -138,9 +138,70 @@ def main():
         st.session_state.youtube_videos = []
     if 'youtube_copied_text' not in st.session_state: # Ensure youtube_copied_text is initialized
         st.session_state.youtube_copied_text = ""
+    if 'generated_ai_prompt' not in st.session_state:
+        st.session_state.generated_ai_prompt = ""
 
     # Sidebar for configuration
     with st.sidebar:
+        st.header("NotebookLM Podcast Prompt Generator")
+        prompt_category_options = list(SUBREDDIT_CATEGORIES.keys())
+        if "All" in prompt_category_options:
+            prompt_category_options.remove("All")
+        prompt_selected_category = st.selectbox(
+            "Aihealue/Kategoria",
+            options=prompt_category_options,
+            index=0,
+            key="notebooklm_prompt_category_select"
+        )
+        prompt_tone = st.text_input(
+            "Äänensävy (esim. keskusteleva, asiantunteva, uutistyylinen)",
+            value="keskusteleva",
+            key="notebooklm_prompt_tone_input"
+        )
+        prompt_audience = st.text_input(
+            "Kohdeyleisö (esim. aloittelija, asiantuntija)",
+            value="aloittelija",
+            key="notebooklm_prompt_audience_input"
+        )
+        prompt_structure = st.text_input(
+            "Rakenne (esim. kolmiosainen: johdanto, pääkohdat, yhteenveto)",
+            value="johdanto, pääkohdat, yhteenveto",
+            key="notebooklm_prompt_structure_input"
+        )
+        prompt_length = st.text_input(
+            "Pituustoive (esim. pidä lyhyenä, max 10 min)",
+            value="pidä lyhyenä",
+            key="notebooklm_prompt_length_input"
+        )
+        prompt_keywords = st.text_area(
+            "Avainsanat / Fokus (valinnainen)",
+            placeholder="esim. tekoälyn trendit, viimeisimmät innovaatiot",
+            key="notebooklm_prompt_keywords_input"
+        )
+        # Promptin generointi
+        context_parts = []
+        if prompt_selected_category:
+            context_parts.append(f"Aihe: {prompt_selected_category}.")
+        if prompt_tone:
+            context_parts.append(f"Äänensävy: {prompt_tone}.")
+        if prompt_audience:
+            context_parts.append(f"Kohdeyleisö: {prompt_audience}.")
+        if prompt_structure:
+            context_parts.append(f"Rakenne: {prompt_structure}.")
+        if prompt_length:
+            context_parts.append(f"Pituus: {prompt_length}.")
+        if prompt_keywords:
+            focus_text = prompt_keywords.replace('"', "'").replace('\n', ' ').replace('\r', ' ').replace('\t', ' ').replace('\u2028', ' ').replace('\u2029', ' ').replace('\xa0', ' ').replace('\ufeff', ' ').replace('\u200b', ' ').replace('\u200c', ' ').replace('\u200d', ' ').replace('\u2060', ' ').replace('\uFEFF', ' ').replace('\u00A0', ' ').replace('\u202F', ' ').replace('\u205F', ' ').replace('\u3000', ' ').replace('\u180E', ' ').replace('\u2000', ' ').replace('\u2001', ' ').replace('\u2002', ' ').replace('\u2003', ' ').replace('\u2004', ' ').replace('\u2005', ' ').replace('\u2006', ' ').replace('\u2007', ' ').replace('\u2008', ' ').replace('\u2009', ' ').replace('\u200A', ' ').replace('\u2028', ' ').replace('\u2029', ' ').replace('\u202F', ' ').replace('\u205F', ' ').replace('\u3000', ' ').strip()[:100]
+            context_parts.append(f"Fokus: {focus_text}.")
+        context = " ".join(context_parts)
+        final_prompt = f"Task: Luo podcast. {context} Output: Podcast-skripti. CRITICAL: Käytä VAIN annettuja lähde-URL:eja.".strip()
+        # Pituusrajoitus
+        if len(final_prompt) > 500:
+            final_prompt = final_prompt[:497] + "..."
+        st.markdown(f"**Generoitu NotebookLM-podcast-kehote:**")
+        st.text_area("Prompt", value=final_prompt, height=100, max_chars=500, key="notebooklm_generated_prompt")
+        st.caption(f"Merkkimäärä: {len(final_prompt)}/500")
+        st.divider()
         st.header("Configuration")
         
         selected_category = st.selectbox(
@@ -190,6 +251,88 @@ def main():
                 except Exception as e_save:
                     st.sidebar.error(f"Error saving file: {e_save}")
         # --- End Rewritten Save to File section ---
+
+        # --- AI Prompt Generator Section ---
+        st.sidebar.divider()
+        st.sidebar.header("AI Prompt Generator")
+        
+        prompt_category_options = list(SUBREDDIT_CATEGORIES.keys())
+        if "All" in prompt_category_options: # Remove "All" if it's not suitable for specific prompt generation
+            prompt_category_options.remove("All")
+
+        prompt_selected_category = st.sidebar.selectbox(
+            "Select Category for Prompt",
+            options=prompt_category_options,
+            index=0, # Default to the first category
+            key="prompt_category_select"
+        )
+
+        prompt_length = st.sidebar.text_input(
+            "Desired Podcast Length (e.g., '10-15 minutes', 'short')",
+            value="around 10-15 minutes",
+            key="prompt_length_input"
+        )
+
+        prompt_tone = st.sidebar.text_input(
+            "Desired Podcast Tone (e.g., 'informative', 'conversational')",
+            value="informative and engaging",
+            key="prompt_tone_input"
+        )
+
+        prompt_keywords = st.sidebar.text_area(
+            "Optional: Keywords/Focus Points",
+            placeholder="e.g., latest breakthroughs, beginner-friendly explanations, future trends",
+            key="prompt_keywords_input"
+        )
+
+        if st.sidebar.button("✨ Generate AI Prompt", key="generate_ai_prompt_button", use_container_width=True):
+            # --- New prompt generation based on podcast_prompt.md principles ---
+            task = "Task: Create podcast."
+
+            context_parts = []
+            if prompt_selected_category:
+                context_parts.append(f"Topic: {prompt_selected_category}.")
+            if prompt_tone:
+                context_parts.append(f"Tone: {prompt_tone}.")
+            if prompt_length:
+                # podcast_prompt.md notes that specific times can be unreliable.
+                # Phrasing as "Aim for..." or using descriptive terms.
+                context_parts.append(f"Length goal: {prompt_length}.")
+
+            context = " ".join(context_parts)
+
+            reference_parts = ["Ref: Structure: intro, key insights, summary."]
+            if prompt_keywords:
+                sanitized_keywords = prompt_keywords.replace('"', "'").replace('\\n', ' ').strip()
+                if sanitized_keywords:
+                    # Truncate keywords to ensure overall prompt stays short
+                    reference_parts.append(f"Focus on: {sanitized_keywords[:120]}.")
+            
+            reference_parts.append("Output: Podcast script.")
+            # Emphasize source adherence strongly, as per podcast_prompt.md
+            reference_parts.append("CRITICAL: Use ONLY provided source URLs for content.")
+            
+            reference = " ".join(reference_parts)
+
+            # Combine into a single, compact prompt string
+            final_prompt = f"{task} {context} {reference}".strip()
+
+            # Fallback: If the prompt is unexpectedly long, create a very minimal version.
+            # This should ideally not be hit with the current structure and keyword truncation.
+            if len(final_prompt) > 490: # Leave a small buffer for safety
+                simplified_focus = ""
+                if prompt_keywords:
+                    focus_text = prompt_keywords.replace('"', "'").replace('\n', ' ').strip()[:50]
+                    simplified_focus = f"Focus: {focus_text}."
+                
+                final_prompt = (f"Podcast on {prompt_selected_category}. {simplified_focus} "
+                                f"Tone: {prompt_tone.split(',')[0]}. Structure: intro, insights, summary. "
+                                f"Base ONLY on sources.").strip()
+                final_prompt = final_prompt[:490] # Hard truncate if still too long
+
+            st.session_state.generated_ai_prompt = final_prompt
+            st.toast("AI Prompt generated using podcast_prompt.md guidelines!", icon="✨")
+            # --- End of new prompt generation ---
 
     # Reddit Post Fetching Logic
     if fetch_button:
@@ -361,5 +504,17 @@ def main():
                 else:
                     st.warning("Skipping display of an invalid YouTube video item.")
     
+    # --- Display AI Generated Prompt ---
+    if st.session_state.generated_ai_prompt:
+        st.markdown("---")
+        st.subheader("🤖 Generated AI Prompt for Podcast")
+        st.text_area("Copy this prompt for your podcast tool (e.g., NotebookLM):", value=st.session_state.generated_ai_prompt, height=250, key="generated_ai_prompt_display")
+        if st.button("📋 Copy Prompt", key="copy_generated_prompt"):
+            # This button doesn't automatically copy to clipboard in Streamlit's core
+            # It's more of a user cue. For actual clipboard, a component would be needed.
+            # However, the text_area itself is easy to copy from.
+            st.toast("Prompt ready in the text box for copying!", icon="📋")
+
+
 if __name__ == "__main__":
     main()
