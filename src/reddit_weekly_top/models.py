@@ -20,6 +20,7 @@ class RedditPost(BaseModel):
         permalink: The Reddit permalink to the post.
         thumbnail: URL to the post thumbnail, if available.
         selftext: The text content of self (text-only) posts.
+        num_comments: The number of comments on the post.
     """
 
     title: str = Field(..., description="The title of the post")
@@ -31,4 +32,5 @@ class RedditPost(BaseModel):
     subreddit: str = Field(..., description="The subreddit where the post was made")
     permalink: str = Field(..., description="The Reddit permalink to the post")
     thumbnail: Optional[str] = Field(None, description="URL to the post thumbnail, if available")
-    selftext: str = Field(default="", description="The text content of self (text-only) posts") 
+    selftext: str = Field(default="", description="The text content of self (text-only) posts")
+    num_comments: int = Field(default=0, description="The number of comments on the post")
