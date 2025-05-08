@@ -80,66 +80,91 @@ class RedditClient:
             "t": timeframe,
             "limit": limit
         }
-        # Headers are now set on the session, no need to pass them here unless overriding
-        # headers = {"User-Agent": self.user_agent} # Remove this line
 
         try:
-            # Use self.session.get instead of requests.get
-            response = self.session.get(url, params=params) # Removed headers argument
-            response.raise_for_status() # This will raise HTTPError for bad responses (4xx or 5xx)
+            response = self.session.get(url, params=params)
+            response.raise_for_status() 
 
             posts = []
-            response_json = response.json() # Parse JSON once
+            response_json = response.json() 
 
-            # Add checks for expected structure before accessing keys
             if not isinstance(response_json, dict) or "data" not in response_json or not isinstance(response_json["data"], dict) or "children" not in response_json["data"] or not isinstance(response_json["data"]["children"], list):
                 logger.warning(f"Unexpected API response structure for r/{subreddit}. Expected 'data' with 'children' list. Got: {response_json}")
-                return [] # Return empty list for malformed response
+                return []
 
             for child in response_json["data"]["children"]:
-                # Ensure child and child['data'] are dictionaries before accessing keys
                 if not isinstance(child, dict) or "data" not in child or not isinstance(child["data"], dict):
-                    logger.warning(f"Skipping malformed child item in response for r/{subreddit}: {child}")
+                    logger.warning(f"Skipping post due to unexpected structure: {child}")
                     continue
 
                 post_data = child["data"]
                 
-                # Filter promoted posts directly here
-                if post_data.get("promoted", False):
-                    continue
+                # Extract data with robust fallbacks for all fields expected by RedditPost
+                title_val = post_data.get("title", "N/A")
+                url_val = post_data.get("url", "")
+                score_val = post_data.get("score", 0)
+                author_val = post_data.get("author", "N/A")
+                created_utc_val = post_data.get("created_utc", 0)
                 
-                # Basic check for essential keys before creating RedditPost
-                required_keys = ["title", "permalink", "score", "created_utc", "author", "subreddit"]
-                if not all(key in post_data for key in required_keys):
-                    logger.warning(f"Skipping post item with missing essential keys in response for r/{subreddit}: {post_data.get('permalink', 'N/A')}")
-                    continue
+                # Ensure subreddit_name is derived correctly
+                subreddit_api_val = post_data.get("subreddit")
+                subreddit_val = subreddit_api_val if subreddit_api_val is not None else subreddit # Fallback to function arg
+                if subreddit_val is None: subreddit_val = "N/A" # Ultimate fallback
 
-                # Create full Reddit URL from permalink
-                full_reddit_url = f"https://www.reddit.com{post_data['permalink']}"
-                posts.append(
-                    RedditPost(
-                        title=post_data["title"],
-                        url=full_reddit_url,
-                        score=post_data["score"],
-                        created_utc=datetime.fromtimestamp(post_data["created_utc"]),
-                        author=post_data["author"],
-                        is_promoted=False, # Already filtered, so set to False
-                        subreddit=post_data["subreddit"],
-                        permalink=post_data["permalink"],
-                        thumbnail=post_data.get("thumbnail"),
-                        selftext=post_data.get("selftext", "")
-                    )
-                )
-            # Note: The number of posts returned might be less than 'limit'
-            # if promoted posts were filtered out. The tests seem to account for this.
+                permalink_api_val = post_data.get("permalink")
+                # Ensure permalink is a full URL or an empty string if not available
+                permalink_val = f"https://www.reddit.com{permalink_api_val}" if permalink_api_val else ""
+
+                selftext_val = post_data.get("selftext", "")
+                num_comments_val = post_data.get("num_comments", 0)
+                thumbnail_val = post_data.get("thumbnail")
+
+                # Clean up thumbnail URL
+                if thumbnail_val == "self" or thumbnail_val == "default" or not thumbnail_val or not thumbnail_val.startswith("http"):
+                    thumbnail_val = None
+                
+                # Convert timestamp to datetime object
+                try:
+                    created_dt = datetime.fromtimestamp(float(created_utc_val if created_utc_val is not None else 0))
+                except (TypeError, ValueError):
+                    created_dt = datetime.fromtimestamp(0) # Default to epoch
+
+                # Construct the dictionary for Pydantic model instantiation
+                post_args = {
+                    "title": title_val,
+                    "url": url_val,
+                    "score": int(score_val), # Ensure int
+                    "author": author_val,
+                    "created_utc": created_dt,
+                    "subreddit": subreddit_val,
+                    "permalink": permalink_val,
+                    "selftext": selftext_val,
+                    "num_comments": int(num_comments_val), # Ensure int
+                    "thumbnail": thumbnail_val
+                    # is_promoted will use the model's default value (False)
+                }
+                
+                try:
+                    post_instance = RedditPost(**post_args)
+                    posts.append(post_instance)
+                except Exception as e_pydantic:
+                    # Log the exact data that caused the Pydantic error
+                    logger.error(f"Pydantic validation failed for data: {post_args}. Error: {e_pydantic}")
+                    # Re-raise the error to be caught by the outer try-except if needed
+                    raise e_pydantic # Changed to re-raise the specific Pydantic error
+
             return posts
+        except RequestException as e_req: # Specific exception for requests issues
+            logger.error(f"Failed to fetch posts from r/{subreddit}: {e_req}")
+            raise
+        # Removed KeyError catch as .get() with defaults should prevent most KeyErrors from post_data
+        except Exception as e_general: 
+            # This will catch the re-raised Pydantic error or other unexpected errors
+            logger.error(f"An unexpected error occurred while fetching posts from r/{subreddit}: {e_general}. Response: {response.text[:500] if 'response' in locals() and hasattr(response, 'text') else 'N/A'}")
+            raise RequestException(f"Unexpected error for r/{subreddit}: {e_general}") from e_general
 
-        # RequestException includes ConnectionError, HTTPError, Timeout, TooManyRedirects
-        # No need to catch HTTPError separately as raise_for_status() handles it.
-        except RequestException as e:
-            logger.error(f"Failed to fetch posts from r/{subreddit}: {e}")
-            raise # Re-raise the original exception for tests/callers to handle
-        except (KeyError, TypeError, ValueError) as e: # Catch potential JSON parsing or data access errors
-             logger.error(f"Failed to parse API response from r/{subreddit}: {e} - Response text: {response.text if 'response' in locals() else 'N/A'}")
-             # Return empty list on parsing error, as tests expect this for malformed data
-             return []
+    def close_session(self) -> None:
+        """Close the requests session."""
+        if self.session:
+            self.session.close()
+            logger.info("RedditClient session closed.")
