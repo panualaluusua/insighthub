@@ -39,6 +39,13 @@ The primary goal is to visualize the user's knowledge within their field, highli
     *   *Impact:* Provides objective context, motivates targeted learning, requires careful UI/UX.
 
 6.  **Integration with Other Features:**
+
+7.  **Viikoittainen lähdemateriaalikooste ja termien prosessointi:**
+    *   Järjestetään viikoittain koostettu paketti ajankohtaisista lähdemateriaaleista (artikkelit, podcastit, julkaisut jne.).
+    *   Prosessoidaan näistä materiaaleista automaattisesti tai puoliksi automaattisesti keskeisimmät termit ja käsitteet.
+    *   Yhdistetään tunnistetut termit ja käsiteverkostot olemassa olevaan mindmappiin/tietorakenteeseen.
+    *   Mahdollisuus tarkastella, miten uusi tieto liittyy jo tiedossa oleviin aiheisiin ja laajentaa/tarkentaa käyttäjän "tietomaisemaa".
+    *   *Vaikutus:* Pitää käyttäjän tiedot ajan tasalla, tukee jatkuvaa oppimista ja auttaa havaitsemaan uusia nousevia trendejä sekä niiden yhteydet aiempaan osaamiseen.
     *   Nodes link to relevant podcast segments, articles, or weekly implementation suggestions.
     *   "Highest Impact" items are clearly marked on the map.
 
