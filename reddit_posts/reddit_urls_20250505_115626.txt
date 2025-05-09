@@ -1,6 +1,0 @@
-https://www.reddit.com/r/Python/comments/1kdui8w/after_ruff_and_uv_astral_announced_their_next/
-https://www.reddit.com/r/Python/comments/1kboqlu/inline_function_method_inliner_by_ast/
-https://www.reddit.com/r/Python/comments/1kch7hf/template_strings_in_python_314_an_useful_new/
-https://www.reddit.com/r/Python/comments/1k9sftq/i_am_a_teacher_looking_for_a_career_change_is/
-https://www.reddit.com/r/Python/comments/1kbjvtr/jobspy_docker_api_a_fastapibased_job_search_api/
-https://www.reddit.com/r/Python/comments/1ka71qs/lblprof_easily_see_your_python_codes_performance/
