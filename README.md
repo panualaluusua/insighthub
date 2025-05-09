@@ -1,43 +1,48 @@
-# Reddit Weekly Top
+# InsightHub: Reddit & YouTube Aggregator
 
-A Python tool to fetch the top weekly posts from selected subreddits. This tool returns both link posts and text-only posts from the most popular content in your selected subreddits.
+A Streamlit-based web application that aggregates content from Reddit and YouTube, making it easy to discover and organize interesting content from your favorite subreddits and YouTube channels.
 
 ## Quick Start
 
-After installation, fetch Reddit posts with a single command:
-# Example sub reddits: ChatGPTCoding, Cursor, etc.
+1. Create and activate a virtual environment:
 ```bash
-# Fetch top weekly posts from specific subreddits
-python -m reddit_weekly_top.scripts.fetch_posts -s python programming
-
-# Fetch monthly top posts instead of weekly
-python -m reddit_weekly_top.scripts.fetch_posts -s dataengineering -l 25 -t month
-
-# Only include posts with high scores
-python -m reddit_weekly_top.scripts.fetch_posts -s python --min-score 100
-
-# Customize number of posts per subreddit
-python -m reddit_weekly_top.scripts.fetch_posts -s python -l 5
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 ```
 
-The script will:
-1. Fetch posts from the specified subreddits
-2. Show you a summary of fetched posts with their scores
-3. Save the URLs to a file for reference
+2. Install the required dependencies:
+```bash
+pip install streamlit
+pip install -e ".[dev]"
+```
+
+3. Set up your environment variables:
+```bash
+cp .env.example .env
+# Edit .env and add your YouTube API key:
+YOUTUBE_API=your_youtube_api_key
+```
+
+4. Run the Streamlit app:
+```bash
+python -m streamlit run src/reddit_weekly_top/app.py
+```
 
 ## Features
 
-- Fetch top posts (weekly or monthly) from multiple subreddits
-- Filter posts by minimum score
-- Customize the number of posts fetched per subreddit
-- Save fetched URLs to a timestamped file
+- Aggregate content from multiple Reddit subreddits
+- Fetch latest videos from YouTube channels
+- Organize content by categories
+- Generate podcast prompts for NotebookLM
+- Copy URLs for easy sharing
+- Modern, user-friendly interface
 
 ## Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/reddit-weekly-top.git
-cd reddit-weekly-top
+git clone https://github.com/yourusername/insight-hub.git
+cd insight-hub
 ```
 
 2. Create and activate a virtual environment:
@@ -57,52 +62,48 @@ cp .env.example .env
 # Edit .env with your preferred settings
 ```
 
-## Command Line Options
-
-Use `python -m reddit_weekly_top.scripts.fetch_posts --help` to see all options:
-
-- `-s`, `--subreddits`: List of subreddits (required)
-- `-t`, `--timeframe`: Time window ('week' or 'month', default: 'week')
-- `-l`, `--limit`: Max posts per subreddit (default: 10)
-- `--min-score`: Minimum post score (default: 0)
-
 ## Environment Variables
 
-The following environment variables can be set in your `.env` file:
+Set up your environment variables in a `.env` file:
 
 ```bash
+# YouTube API key (required for YouTube functionality)
+YOUTUBE_API=your_youtube_api_key
+
 # Reddit settings
-REDDIT_USER_AGENT=your-user-agent
+REDDIT_USER_AGENT=InsightHub/1.0
 ```
 
 ## Development
 
+### Running in Development
+
+1. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+2. Install development dependencies:
+```bash
+pip install -e ".[dev]"
+```
+
 ### Running Tests
 
 To run the test suite:
-
 ```bash
 pytest
 ```
 
 To run tests with coverage:
-
 ```bash
 pytest --cov=reddit_weekly_top
-```
-
-### Code Style
-
-This project uses Ruff for code formatting and linting. To check your code:
-
-```bash
-ruff check .
 ```
 
 ### Type Checking
 
 To run type checking:
-
 ```bash
 mypy src tests
 ```
