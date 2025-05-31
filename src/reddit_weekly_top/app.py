@@ -6,9 +6,18 @@ import sys
 import os
 
 # Add the project root to Python path
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+print(f"DEBUG: __file__ = {__file__}")
+print(f"DEBUG: os.path.abspath(__file__) = {os.path.abspath(__file__)}")
+print(f"DEBUG: CWD before sys.path manipulation = {os.getcwd()}")
+print(f"DEBUG: sys.path before modification = {sys.path}")
+project_root_for_sys_path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+print(f"DEBUG: Inserting into sys.path at index 0: {project_root_for_sys_path}")
+sys.path.insert(0, project_root_for_sys_path)
+print(f"DEBUG: sys.path after modification = {sys.path}")
+print(f"DEBUG: CWD after sys.path manipulation = {os.getcwd()}")
 
 from reddit_weekly_top.reddit_client import RedditClient
+print("DEBUG: Successfully imported RedditClient")
 from reddit_weekly_top.youtube_client import YouTubeClient
 from reddit_weekly_top.constants import SUBREDDIT_CATEGORIES, DEFAULT_PODCAST_PROMPTS
 from reddit_weekly_top.utils import initialize_session_state
