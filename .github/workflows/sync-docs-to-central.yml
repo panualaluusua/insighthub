@@ -19,17 +19,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install dependencies (pip if requirements.txt exists)
+      - name: Install dependencies (pip or poetry)
         run: |
           if [ -f requirements.txt ]; then
             pip install -r requirements.txt
           fi
-      - name: Install Poetry if pyproject.toml exists
-        if: ${{ exists('pyproject.toml') }}
-        run: pip install poetry
-      - name: Install dependencies (Poetry)
-        if: ${{ exists('pyproject.toml') }}
-        run: poetry install --no-interaction --no-root
+          if [ -f pyproject.toml ]; then
+            pip install poetry
+            poetry install --no-interaction --no-root
+          fi
       - name: Checkout central documentation repository
         uses: actions/checkout@v4
         with:
