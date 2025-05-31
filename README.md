@@ -4,28 +4,31 @@ A Streamlit-based web application that aggregates content from Reddit and YouTub
 
 ## Quick Start
 
-1. Create and activate a virtual environment:
+1. Install Poetry if you haven't already:
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install poetry
 ```
 
-2. Install the required dependencies:
+2. Install the required dependencies (Poetry will create and manage a virtual environment for you):
 ```bash
-pip install streamlit
-pip install -e ".[dev]"
+poetry install
 ```
 
-3. Set up your environment variables:
+3. Activate the Poetry shell:
+```bash
+poetry shell
+```
+
+4. Set up your environment variables:
 ```bash
 cp .env.example .env
 # Edit .env and add your YouTube API key:
 YOUTUBE_API=your_youtube_api_key
 ```
 
-4. Run the Streamlit app:
+5. Run the Streamlit app:
 ```bash
-python -m streamlit run src/reddit_weekly_top/app.py
+poetry run streamlit run src/reddit_weekly_top/app.py
 ```
 
 ## Features
