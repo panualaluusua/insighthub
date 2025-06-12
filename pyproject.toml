@@ -59,6 +59,7 @@ requests = ">=2.31.0"
 python-dotenv = ">=1.0.0"
 pydantic = ">=2.5.3"
 praw = ">=7.7.1"
+supabase = "^2.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.4.4"

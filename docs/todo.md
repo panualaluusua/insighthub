@@ -12,6 +12,11 @@
 
 Tämä kokonaisuus automatisoi tiedonkeruun, arvioinnin ja esittämisen, ja tekee uusien merkityksellisten sisältöjen löytämisestä helppoa ja tehokasta.
 
+- TODO: Perehdy vektorikantoihin ja erityisesti siihen, miten Supabasen pgvector-laajennus toimii käytännössä. Kirjaa ylös, miten vektorihaku, embeddingien tallennus ja semanttinen haku toteutetaan.
+
+- TODO: Testaa Row Level Security (RLS) -politiikat profiles- ja interactions-tauluissa. Varmista, että käyttäjät näkevät ja muokkaavat vain omia rivejään.
+- TODO: Lisää testikäyttäjiä Supabaseen ja varmista, että käyttöoikeudet toimivat odotetusti.
+
 # TODO: Lähteet Datainsinöörityöhön Keskittyviä Tietolähteitä
 
 Seuraavaksi voisimme lisätä ja täydentää lähteitä, jotka ovat hyödyllisiä datainsinöörityöhön liittyen. Alla on alustava lista, jota voi täydentää jatkossa.
