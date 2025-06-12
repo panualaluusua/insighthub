@@ -41,3 +41,7 @@ htmlcov/
 
 # Pytest
 .pytest_cache/ 
+
+#n8n
+n8n_API.py
+n8n_api_methods.md
