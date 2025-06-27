@@ -159,3 +159,48 @@ Tämä teknologiasuunnitelma perustuu "Nopea Prototyyppi / Low-Code" -lähestymi
 
 **Yhteenveto:**
 Tämä teknologiasuunnitelma mahdollistaa nopean kehityksen, testauksen ja skaalautuvuuden. Voit siirtyä MVP:stä tuotantoon vaiheittain ilman tarvetta uusia koko arkkitehtuuria.
+
+---
+
+## 7. Yksityiskohtaiset Tekniset Tehtävät (TODOista)
+
+Nämä tehtävät on nostettu erillisestä `todo.md`-tiedostosta varmistamaan, että tekniset yksityiskohdat tulevat huomioiduiksi.
+
+- **pgvector-tutkimus:** Perehdy syvällisesti Supabasen `pgvector`-laajennuksen toimintaan. Dokumentoi, miten vektoriupotusten tallennus, haku ja kosini-samankaltaisuuden laskenta toteutetaan käytännössä.
+- **RLS-testaus:** Suunnittele ja toteuta kattavat testit Row Level Security (RLS) -politiikoille `profiles`- ja `interactions`-tauluissa. Varmista, että käyttäjä voi nähdä ja muokata ainoastaan omia tietojaan.
+- **Testikäyttäjien luonti:** Lisää Supabase-projektiin useita testikäyttäjiä eri rooleilla (jos relevanttia) ja varmista, että käyttöoikeudet ja RLS-säännöt toimivat heidän osaltaan odotetusti.
+
+---
+
+## 8. Sisältölähteet (Datatekniikka)
+
+Seuraavat datatekniikkaan keskittyvät lähteet tulee lisätä järjestelmään sisällönkeruun piiriin.
+
+### 8.1. Blogit ja Verkkosivustot
+
+- **Seattle Data Guy (Benjamin Rogojan):** https://www.theseattledataguy.com/
+- **Start Data Engineering (Andreas Kretz):** https://www.startdataengineering.com/
+- **Data Engineering Weekly:** https://www.dataengineeringweekly.com/
+- **dbt Labs Blog:** https://www.getdbt.com/blog/
+- **Confluent Blog (Apache Kafka):** https://www.confluent.io/blog/
+- **Airbyte Blog:** https://airbyte.com/blog
+- **Zach Wilson's Blog:** https://zachwilson.tech/
+
+### 8.2. YouTube-kanavat
+
+- **Seattle Data Guy:** https://www.youtube.com/@SeattleDataGuy
+- **Start Data Engineering:** https://www.youtube.com/@StartDataEngineering
+- **Thu Vu data analytics:** https://www.youtube.com/@ThuvuDataAnalytics
+
+### 8.3. Yhteisöt
+
+- **DataTalks.Club:** https://datatalks.club/
+- **r/dataengineering (Reddit):** https://www.reddit.com/r/dataengineering/
+- **Locally Optimistic:** https://locallyoptimistic.com/
+
+### 8.4. Podcastit
+
+- **The Data Engineering Podcast**
+- **Data Engineering Show**
+- **Monday Morning Data Chat**
+- **The Analytics Engineering Podcast (dbt Labs)**

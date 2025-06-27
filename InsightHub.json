@@ -1,0 +1,431 @@
+{
+  "name": "InsightHub",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "id": "4af5e02a-0ad3-42de-919d-80f4f89c3414",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -220,
+        -60
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "subreddit": "python",
+        "filters": {}
+      },
+      "id": "07c2438e-9a79-469e-8a08-d74b87025eac",
+      "name": "Fetch Reddit Posts",
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        -440,
+        120
+      ],
+      "credentials": {
+        "redditOAuth2Api": {
+          "id": "ibdFP7FrmzeCcP2l",
+          "name": "Reddit account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "id": "12f8bab2-ce49-4397-9759-70c48a05947b",
+      "name": "Fetch YouTube Videos",
+      "type": "n8n-nodes-base.youtube",
+      "typeVersion": 1,
+      "position": [
+        20,
+        120
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {},
+      "id": "3db6dcfa-fcdf-422c-9990-f787b2100f79",
+      "name": "Merge Sources",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        280
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "2173d5dd-6821-43c2-b049-d232e8285884",
+      "name": "Deduplicate Content",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 1,
+      "position": [
+        -220,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "source",
+              "value": "={{ $json.kind === 't3' ? 'Reddit' : ($json.kind === 'YoutubeResult' ? 'YouTube' : 'Unknown') }}"
+            },
+            {
+              "name": "title",
+              "value": "={{ $json.title || $json.snippet.title }}"
+            },
+            {
+              "name": "url",
+              "value": "={{ $json.url || 'https://www.youtube.com/watch?v=' + $json.id.videoId }}"
+            }
+          ]
+        },
+        "options": {
+          "dotNotation": true
+        }
+      },
+      "id": "2c500303-fd31-4abe-8953-6fcd6b32f5c1",
+      "name": "Clean & Preprocess",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        560
+      ]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "youtubeUrl",
+              "name": "youtubeUrl",
+              "type": "string",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "id": "get_youtube_url",
+      "name": "Get YouTube URL",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [0, 700]
+    },
+    {
+      "parameters": {
+        "jsCode": "const extractYoutubeId = (url) => {\n  const pattern = /(?:youtube\\.com\\/(?:[^\\/]+\\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\\.be\/)([^\"&?\\/\\s]{11})/;\n  const match = url.match(pattern);\n  return match ? match[1] : null;\n};\nconst youtubeUrl = items[0].json.youtubeUrl;\nreturn [{ json: { videoId: extractYoutubeId(youtubeUrl) } }];\n"
+      },
+      "id": "youtube_video_id",
+      "name": "YouTube Video ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [200, 700]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "videoId": "={{ $json.videoId }}",
+        "resource": "video",
+        "operation": "get"
+      },
+      "id": "get_youtube_video",
+      "name": "Get YouTube Video",
+      "type": "n8n-nodes-base.youTube",
+      "typeVersion": 1,
+      "position": [400, 700]
+    },
+    {
+      "parameters": {},
+      "id": "youtube_transcript",
+      "name": "YouTube Transcript",
+      "type": "n8n-nodes-youtube-transcription.youtubeTranscripter",
+      "typeVersion": 1,
+      "position": [600, 700]
+    },
+    {
+      "parameters": {
+        "options": {},
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "text",
+              "separateBy": " ",
+              "aggregation": "concatenate"
+            }
+          ]
+        }
+      },
+      "id": "concatenate_transcript",
+      "name": "Concatenate Transcript",
+      "type": "n8n-nodes-base.summarize",
+      "typeVersion": 1,
+      "position": [800, 700]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "full_content",
+              "value": "={{ $node[\"Clean & Preprocess\"].json.source === 'Reddit' ? ($node[\"Clean & Preprocess\"].json.title + '\\n\\n' + $node[\"Fetch Reddit Posts\"].json.selftext) : ($node[\"Clean & Preprocess\"].json.title + '\\n\\n' + $json.text) }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e0af9c6f-6460-4844-8d13-5bd206f35aa3",
+      "name": "Set Final Content",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        840
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deepseek.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {}
+      },
+      "id": "aa447966-a539-46b4-b4db-e3eab1e15977",
+      "name": "LLM Summarization",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        -440,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.deepseek.com/v1/chat/completions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {}
+          }
+        }
+      },
+      "id": "9688ebb4-9d35-4321-aaeb-530f23c54a07",
+      "name": "Topic/Entity Extraction",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        20,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "mergeByIndex",
+        "options": {}
+      },
+      "id": "88e98467-28ef-4c0e-928b-31cf43873590",
+      "name": "Merge AI Data",
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        1160
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// This node determines the relevance and calculates a score.\n// You can customize the logic below.\n\nconst item = $input.item.json;\nconst keywords = ['AI', 'GPT', 'agent', 'automation'];\nlet score = 0;\n\nconst content = item.data.full_content.toLowerCase();\nconst summary = JSON.parse(item.summary.body).choices[0].message.content.toLowerCase();\n\n// Basic keyword scoring\nfor (const keyword of keywords) {\n  if (content.includes(keyword) || summary.includes(keyword)) {\n    score += 10;\n  }\n}\n\n// Add score based on source\nif (item.data.source === 'Reddit') {\n  score += 1;\n} else if (item.data.source === 'YouTube') {\n  score += 2;\n}\n\nitem.relevance_score = score;\n\n// Filter out items with a score below a certain threshold\nif (score < 10) {\n  return null; // This will stop the item from proceeding\n}\n\nreturn item;\n"
+      },
+      "id": "f967aa78-c81f-42c4-a3a9-5eee1e588d18",
+      "name": "Relevance & Ranking",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        1300
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "f0715907-c9bf-49ff-8886-58376343bc66",
+      "name": "Store in Supabase",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 2,
+      "position": [
+        -220,
+        1460
+      ],
+      "credentials": {}
+    },
+    {
+      "parameters": {
+        "jsCode": "// Logic to generate a personalized feed and send a notification\n// For example, query Supabase for users interested in these topics\n// and send them an email or push notification.\n\nconsole.log('Generating feed and sending notification for item:', $input.item.json.id);\n\nreturn { status: 'Notification Sent' };"
+      },
+      "id": "544ed7ca-f198-4bdb-a10e-a36cd8e350b3",
+      "name": "Generate Feed & Notify",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -620,
+        1640
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Logic to update a vector index (e.g., Pinecone, Weaviate)\n// Use the summary or full content to create an embedding and upsert it.\n\nconst contentToEmbed = $input.item.json.summary;\nconst recordId = $input.item.json.id.toString();\n\nconsole.log(`Updating vector index for record ${recordId}`);\n// http.post('https://api.pinecone.io/...', { vectors: [{id: recordId, values: [...]}] })\n\nreturn { status: 'Vector Index Updated' };"
+      },
+      "id": "16484dd2-bf75-4513-93b1-b3ccdb7987e4",
+      "name": "Update Vector Index",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -360,
+        1640
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Reddit Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Reddit Posts": {
+      "main": [
+        [
+          {
+            "node": "Merge Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Sources": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Content": {
+      "main": [
+        [
+          {
+            "node": "Clean & Preprocess",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Final Content": {
+      "main": [
+        [
+          {
+            "node": "LLM Summarization",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Topic/Entity Extraction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM Summarization": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic/Entity Extraction": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge AI Data": {
+      "main": [
+        [
+          {
+            "node": "Relevance & Ranking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ac61354e-010d-46bc-ae78-e1cc97a5f0ed",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2984faee48890c6620269fc9c4208ca55bfc7f8a203038eccef67dcb52bcfbc"
+  },
+  "id": "ZGXY3eb5jrvzQIkS",
+  "tags": []
+}

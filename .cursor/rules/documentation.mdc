@@ -1,0 +1,44 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Documentation Standards (Core Rule)
+
+- Follow established style guides and conventions for Markdown and diagrams.
+- Use templates and reusable components to ensure consistency.
+- Review and revise documentation regularly to keep it up-to-date.
+- Get feedback from users and incorporate it into the documentation.
+- Use clear, descriptive headings and code blocks with language specification.
+- Prefer practical examples and diagrams for complex concepts.
+- **Document only after using @reflect.md to capture learnings and avoid hindering development.**
+
+### DO / DON'T Examples
+```markdown
+# ✅ DO: Write documentation after reflecting on the task with @reflect.md
+# ❌ DON'T: Interrupt development flow to document before reflection
+# ✅ DO: Use code blocks with language tags
+```python
+print('Hello, world!')
+```
+# ❌ DON'T: Omit language tags in code blocks
+```
+print('Hello, world!')
+```
+```
+
+---
+
+## See also
+- [self_improve.mdc](mdc:self_improve.mdc)
+- [reflect.md](mdc:../context/reflect.md)
+
+---
+
+## Maintenance Notes
+- Update this rule as documentation practices evolve.
+- Add new best practices, DO/DON'T examples, or templates as needed.
+
+
+
+

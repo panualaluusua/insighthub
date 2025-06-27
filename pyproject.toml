@@ -1,31 +1,10 @@
-[project]
-name = "reddit-weekly-top"
-version = "0.1.0"
-description = "A tool to fetch top weekly posts from selected subreddits"
-authors = []
-dependencies = [
-    "requests>=2.31.0",
-    "python-dotenv>=1.0.0",
-    "pydantic>=2.5.3",
-    "praw>=7.7.1",
-]
-
-[project.optional-dependencies]
-dev = [
-    "pytest>=7.4.4",
-    "pytest-mock>=3.12.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.1.14",
-    "mypy>=1.8.0",
-]
-
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.ruff]
 line-length = 100
-target-version = "py39"
+target-version = "py313"
 select = [
     "E",  # pycodestyle errors
     "W",  # pycodestyle warnings
@@ -38,7 +17,7 @@ select = [
 convention = "google"
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.13"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -54,12 +33,18 @@ packages = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.9"
-requests = ">=2.31.0"
+python = "^3.13"
 python-dotenv = ">=1.0.0"
 pydantic = ">=2.5.3"
 praw = ">=7.7.1"
 supabase = "^2.3.0"
+langchain = "^0.2.5"
+langchain-anthropic = "^0.1.15"
+langchain-community = "^0.2.5"
+youtube-transcript-api = "^0.6.2"
+pytube = "^15.0.0"
+requests = ">=2.31.0"
+google-api-python-client = {version = ">=2.173.0,<3.0.0", optional = true}
 
 [tool.poetry.group.dev.dependencies]
 pytest = ">=7.4.4"
@@ -67,6 +52,7 @@ pytest-mock = ">=3.12.0"
 pytest-cov = ">=4.1.0"
 ruff = ">=0.1.14"
 mypy = ">=1.8.0"
+streamlit = "^1.46.0"
 
 [tool.poetry.scripts]
 reddit-fetch-posts = "reddit_weekly_top.scripts.fetch_posts:main"

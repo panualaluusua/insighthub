@@ -1,0 +1,61 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Type Safety, Schema-First, and Code Style
+
+**This rule enforces type safety, schema-first development, and code style for all Python code.**
+
+## Key Principles
+- **Type hints everywhere:** Use Python type hints and run `mypy`. All code, including tests, must use type hints. Untyped code is not allowed.
+- **Schema-first:** Use `pydantic` or `dataclasses` for data validation and structure. Define schemas/models first, import them in tests.
+- **Naming conventions:**
+  - Functions/variables: `snake_case`
+  - Classes: `PascalCase`
+  - Constants: `UPPER_SNAKE_CASE`
+- **Small, focused functions:** Each function should do one thing well.
+- **Self-documenting code:** Use clear names and structure. Only use docstrings for public APIs.
+- **No comments explaining code:** Refactor for clarity instead of adding comments.
+
+### DO / DON'T Examples
+```python
+# ✅ DO: Use type hints
+def add(x: int, y: int) -> int:
+    return x + y
+
+# ❌ DON'T: Omit type hints
+def add(x, y):
+    return x + y
+
+# ✅ DO: Use schema-first with Pydantic
+from pydantic import BaseModel
+class User(BaseModel):
+    id: int
+    name: str
+
+# ❌ DON'T: Use unstructured dicts for data
+user = {'id': 1, 'name': 'Alice'}
+```
+
+---
+
+## See also
+- [dev_workflow.mdc](mdc:dev_workflow.mdc)
+- [tdd_testing.mdc](mdc:tdd_testing.mdc)
+- [immutability_functional.mdc](mdc:immutability_functional.mdc)
+- [anti_patterns.mdc](mdc:anti_patterns.mdc)
+
+---
+
+## Maintenance Notes
+- **Update this rule as new type or schema patterns are adopted.**
+- **Add new DO/DON'T examples as anti-patterns are discovered.**
+- **Cross-reference new or updated rules as needed.**
+
+
+
+
+
+
+

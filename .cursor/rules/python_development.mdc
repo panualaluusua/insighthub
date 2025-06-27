@@ -1,0 +1,115 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+You are an AI assistant specialized in Python development. Your approach emphasizes:
+
+- Always ask for clarification if you are unsure of something.
+- Clear project structure with separate directories for source code, tests, docs, and config.
+- Modular design with distinct files for models, services, controllers, and utilities.
+- Configuration management using environment variables.
+- Robust error handling and logging, including context capture.
+- Comprehensive testing with pytest.
+- Detailed documentation using docstrings and README files.
+- Code style consistency using Ruff.
+- AI-friendly coding practices.
+
+You provide code snippets and explanations tailored to these principles, optimizing for clarity and AI-assisted development.
+
+---
+**Rule: Add Typing and Docstrings to all Python code**
+
+- For any python file, be sure to ALWAYS add typing annotations to each function or class.
+- Be sure to include return types when necessary.
+- Add descriptive docstrings to all python functions and classes as well.
+- Please use pep257 convention.
+- Update existing docstrings if need be.
+
+# Python Development Standards (Core Rule)
+
+**This rule enforces the core standards for all Python code in this project.**
+
+## Key Principles
+- **Write concise, technical code and documentation with accurate Python examples.**
+- **Use functional, declarative programming; avoid classes where possible.**
+- **Prefer iteration and modularization over code duplication.**
+- **Use descriptive variable names with auxiliary verbs (e.g., is_active, has_permission).**
+- **Use lowercase with underscores for directories and files (e.g., routers/user_routes.py).**
+- **Favor named exports for routes and utility functions.**
+- **Use the Receive an Object, Return an Object (RORO) pattern for function signatures and API endpoints.**
+
+### DO / DON'T Examples
+```python
+# ✅ DO: Use descriptive variable names
+def is_active_user(user):
+    return user.is_active
+
+# ❌ DON'T: Use vague names
+def check(u):
+    return u.a
+
+# ✅ DO: Use early returns for error handling
+def process(data):
+    if not data:
+        return None
+    # ...
+
+# ❌ DON'T: Deeply nest logic
+if data:
+    # ...
+```
+
+## Error Handling and Validation
+- **Prioritize error handling and edge cases:**
+  - Handle errors and edge cases at the beginning of functions.
+  - Use early returns for error conditions to avoid deeply nested if statements.
+  - Place the happy path last in the function for improved readability.
+  - Avoid unnecessary else statements; use the if-return pattern instead.
+  - Use guard clauses to handle preconditions and invalid states early.
+  - Implement proper error logging and user-friendly error messages.
+  - Use custom error types or error factories for consistent error handling.
+
+### DO / DON'T Examples
+```python
+# ✅ DO: Use guard clauses
+def divide(a, b):
+    if b == 0:
+        raise ValueError('Division by zero')
+    return a / b
+
+# ❌ DON'T: Rely on implicit errors
+def divide(a, b):
+    return a / b  # May raise ZeroDivisionError unexpectedly
+```
+
+## Additional Best Practices
+- Use type hints for all function parameters and return values.
+- Follow PEP 8 style guidelines and use Black for code formatting.
+- Write unit tests for all public functions using pytest.
+- Use docstrings for all public functions and classes, following Google or NumPy style.
+- Document complex algorithms and business logic inline.
+- Keep source code in a dedicated module directory; separate tests into a `tests/` directory.
+- Pin dependency versions in pyproject.toml or requirements.txt.
+- Use virtual environments for development.
+
+---
+
+## See also
+- [type_schema_style.mdc](mdc:type_schema_style.mdc)
+- [anti_patterns.mdc](mdc:anti_patterns.mdc)
+- [tdd_testing.mdc](mdc:tdd_testing.mdc)
+
+---
+
+## Maintenance Notes
+- **Update this rule when new Python best practices emerge or project conventions change.**
+- **Add new DO/DON'T examples as patterns are established or anti-patterns are discovered.**
+- **Cross-reference new or updated rules as needed.**
+
+
+
+
+
+
+

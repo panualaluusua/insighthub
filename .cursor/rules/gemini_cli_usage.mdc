@@ -1,0 +1,90 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Gemini CLI Usage and Integration Rule
+
+## Overview
+
+Gemini CLI is an open-source AI agent by Google that brings Gemini's 1M-token context, Google Search grounding, and multimodal capabilities to your terminal. It is used as a **complement** to Cursor AI Agent, Claude, and Taskmaster.
+
+## When to Use Gemini CLI
+
+- **Repo-wide or large-context tasks:** Summarize, refactor, or document large codebases that exceed other models' context limits.
+- **Live, up-to-date research:** Use `--google-search` for real-time API, CVE, or best-practice lookups.
+- **Automated code review:** Use `gemini pr-summary` in CI for natural-language PR digests.
+- **Multimodal input:** Feed PDFs, screenshots, or UI sketches for code or test generation.
+- **Second-opinion review:** Cross-check Cursor/Claude output with Gemini's diff or summary.
+
+## Usage Patterns
+
+- **Install:**  
+  `npm install -g @google/gemini-cli`
+- **Authenticate:**  
+  Sign in with Google or set `GEMINI_API_KEY` in `.env`.
+- **Basic prompt:**  
+  `gemini -p "Summarize the architecture of src/"`
+- **Google Search grounding:**  
+  `gemini -p "FastAPI 2024 CVEs" --google-search`
+- **PR summary (CI):**  
+  `gemini pr-summary --pr <number>`
+- **Diff explanation:**  
+  `gemini files diff <patch>`
+- **Semantic grep:**  
+  `gemini files grep "pattern"`
+
+## **Half-Automated Workflow (Recommended)**
+
+To avoid shell/argument issues and ensure reliable results, use this workflow:
+
+1. **The AI provides a copy-paste-ready Gemini CLI command for your request.**
+2. **You run the command in your terminal (e.g., Git Bash).**
+3. **You copy-paste the Gemini output back to the AI.**
+4. **The AI analyzes, summarizes, or acts on the Gemini output.**
+
+### Example
+
+**You:**
+> Use Gemini CLI to review all Python files in `src/` for best practices.
+
+**AI:**
+> Please run this in Git Bash and paste the output here:
+```bash
+cat src/*.py | gemini -p "Review this code for best practices, security issues, and architectural patterns. Provide actionable suggestions."
+```
+
+**You:**
+> [Paste Gemini output here]
+
+**AI:**
+> [Summarize, analyze, or provide next steps based on the output]
+
+## Integration with Taskmaster
+
+- Add a wrapper script (e.g., `scripts/gemini_research.sh`) to call Gemini CLI for research tasks and log output to `.taskmaster/docs/`.
+- Register Gemini as a custom research tool in Taskmaster if desired.
+- Use Gemini CLI in CI for PR summaries and automated code review.
+
+## Best Practices
+
+- Use Gemini for tasks that exceed Cursor/Claude context or require live web data.
+- Pipe long outputs to markdown files and reference them in Taskmaster.
+- Document common prompt snippets in `.gemini/` for team reuse.
+- Prefer Cursor/Claude for fine-grained, in-IDE edits; use Gemini for repo-wide, research, or automation.
+
+## Windows/PowerShell Note
+
+- On Windows, Bash scripts (e.g., `./scripts/gemini/research.sh`) may not work as expected in PowerShell or CMD.
+- For best results, run Gemini CLI commands directly in the terminal:
+  ```
+  gemini -p "Your prompt here"
+  ```
+- If you need to use scripts, run them explicitly with Bash (e.g., `bash ./scripts/gemini/research.sh ...`) or use a PowerShell script.
+
+## References
+
+- [Gemini CLI GitHub](mdc:https:/github.com/google-gemini/gemini-cli)
+- [Gemini CLI Blog](mdc:https:/blog.google/technology/developers/introducing-gemini-cli-open-source-ai-agent)
+
+---

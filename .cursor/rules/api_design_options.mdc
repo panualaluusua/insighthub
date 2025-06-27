@@ -1,0 +1,56 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Advanced API Design & Error Handling
+
+**This rule provides advanced guidance for API design, options/config objects, and error handling in Python.**
+
+## Key Principles
+- **Options/config objects:** Use `dataclasses` or dicts for functions with many or optional parameters.
+- **Avoid long positional parameter lists:** Prefer named arguments for clarity.
+- **Error handling:** Use exceptions or `Result` types (e.g., `Union[Success, Error]`).
+- **Test error cases as first-class citizens.**
+- **API design:** Favor explicit, self-documenting APIs. Use the RORO (Receive an Object, Return an Object) pattern for endpoints and function signatures.
+- **Document error contracts:** Clearly specify what errors can be raised or returned.
+
+### DO / DON'T Examples
+```python
+# ✅ DO: Use dataclasses for options/config
+from dataclasses import dataclass
+@dataclass
+class PaymentOptions:
+    amount: float
+    currency: str
+    description: str = ""
+
+def process_payment(options: PaymentOptions) -> bool:
+    if options.amount <= 0:
+        raise ValueError("Amount must be positive")
+    return True
+
+# ❌ DON'T: Use long positional parameter lists
+def process_payment(amount, currency, description=""):
+    # ...
+
+# ✅ DO: Document error contracts in docstrings
+"""
+Raises:
+    ValueError: If amount is not positive
+"""
+```
+
+---
+
+## See also
+- [python_development.mdc](python_development.mdc)
+- [type_schema_style.mdc](type_schema_style.mdc)
+- [anti_patterns.mdc](anti_patterns.mdc)
+
+---
+
+## Maintenance Notes
+- **Update this rule as new API or error handling patterns are adopted.**
+- **Add new DO/DON'T examples as anti-patterns are discovered.**
+- **Cross-reference new or updated rules as needed.**
