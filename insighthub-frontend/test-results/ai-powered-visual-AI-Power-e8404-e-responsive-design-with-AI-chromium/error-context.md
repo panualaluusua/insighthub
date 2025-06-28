@@ -3,7 +3,7 @@
 ```yaml
 - main:
   - navigation "Main navigation":
-    - link "IH":
+    - link "IH InsightHub":
       - /url: /
     - button "Toggle mobile menu":
       - img
