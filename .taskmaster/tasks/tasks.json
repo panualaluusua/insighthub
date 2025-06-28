@@ -335,7 +335,40 @@
           3
         ],
         "status": "pending",
-        "subtasks": []
+        "subtasks": [
+          {
+            "id": 1,
+            "title": "Supabase-autentikaation ja käyttäjäprofiilin perustaminen",
+            "description": "Konfiguroi Supabase-autentikaatio ja luo käyttäjäprofiilin luontijärjestelmä rekisteröitymisen yhteydessä",
+            "dependencies": [],
+            "details": "1. Konfiguroi Supabase-autentikaatio (sähköposti/salasana, OAuth) 2. Luo SvelteKit-komponentit rekisteröitymiseen ja kirjautumiseen 3. Toteuta automaattinen käyttäjäprofiilin luonti rekisteröitymisen yhteydessä profiles-tauluun käyttäen supabase.auth.signUp() ja supabase.from('profiles').insert() metodeja 4. Varmista että käyttäjän ID linkittyy oikein autentikaation ja profiilin välillä",
+            "status": "pending",
+            "testStrategy": "Testaa rekisteröitymisprosessi ja varmista että profiili luodaan automaattisesti. Testaa kirjautuminen ja uloskirjautuminen."
+          },
+          {
+            "id": 2,
+            "title": "Kiinnostuksen kohteiden hallinta ja käyttöliittymä",
+            "description": "Luo käyttöliittymä kiinnostuksen kohteiden määrittämiseen ja käyttäjäprofiilin hallintanäkymä",
+            "dependencies": [
+              1
+            ],
+            "details": "1. Luo käyttöliittymäkomponentti kiinnostuksen kohteiden valitsemiseen uusille käyttäjille 2. Toteuta käyttäjäprofiilin hallintanäkymä, jossa käyttäjä voi muokata kiinnostuksen kohteitaan 3. Luo lomakkeet ja kontrollit interests-kentän päivittämiseen 4. Toteuta validointi ja virheenkäsittely käyttöliittymässä 5. Varmista että muutokset tallennetaan Supabase-tietokantaan",
+            "status": "pending",
+            "testStrategy": "Testaa kiinnostuksen kohteiden valinta ja tallentaminen. Varmista että käyttäjäprofiili päivittyy oikein ja muutokset näkyvät välittömästi käyttöliittymässä."
+          },
+          {
+            "id": 3,
+            "title": "Interest vector -päivitysjärjestelmä ja Edge Function",
+            "description": "Toteuta Supabase Edge Function käyttäjän interest_vectorin dynaamiseen päivittämiseen käyttäjän interaktioiden perusteella",
+            "dependencies": [
+              1,
+              2
+            ],
+            "details": "1. Luo Supabase Edge Function (update-interest-vector) joka vastaanottaa user_id, content_id ja interaction_type parametrit 2. Toteuta logiikka joka hakee sisällön embedding-vektorin ja käyttäjän nykyisen interest_vectorin 3. Päivitä interest_vector painottamalla sitä sisällön embeddingin suuntaan interaktiotyypin mukaan 4. Toteuta käyttäjäprofiilin päivitys käyttäjän interaktioiden perusteella SvelteKit-sovelluksessa 5. Luo API-kutsut Edge Functioniin käyttäjän toimintojen yhteydessä",
+            "status": "pending",
+            "testStrategy": "Testaa Edge Function erilaisilla interaktiotyypeillä. Varmista että interest_vector päivittyy oikein ja muutokset vaikuttavat suosituksiin. Testaa API-kutsujen toimivuus SvelteKit-sovelluksesta."
+          }
+        ]
       },
       {
         "id": 7,
