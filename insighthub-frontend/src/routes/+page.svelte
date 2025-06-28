@@ -9,6 +9,7 @@
     contentError, 
     contentHasMore 
   } from '../lib/stores/contentStore'
+  import { testSupabaseConnection } from '$lib/test-supabase.js'
   
   // Lazy import components for better performance
   let ContentFilters: any
@@ -105,6 +106,22 @@
   // Reload content when user signs in (memoized)
   $: if ($user && !hasContent && !$contentLoading && !$contentError) {
     contentActions.loadContent(true)
+  }
+
+  // Test function for Supabase connectivity
+  async function runSupabaseTest() {
+    console.log('🚀 Running Supabase connectivity test...')
+    try {
+      const result = await testSupabaseConnection()
+      if (result) {
+        alert('✅ Supabase test passed! Check console for details.')
+      } else {
+        alert('❌ Supabase test failed! Check console for details.')
+      }
+    } catch (error) {
+      console.error('Test error:', error)
+      alert('❌ Test error! Check console for details.')
+    }
   }
 </script>
 
@@ -260,6 +277,16 @@
         AI-powered content discovery from Reddit, YouTube, and more. 
         Get personalized feeds that match your interests perfectly.
       </p>
+      
+      <!-- Test Button (temporary) -->
+      <div class="mb-8">
+        <button 
+          on:click={runSupabaseTest}
+          class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors shadow-md"
+        >
+          🧪 Test Supabase Connection
+        </button>
+      </div>
       
       <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
         <a 
