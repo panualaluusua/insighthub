@@ -1,0 +1,483 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# UI Development Workflow (UI Rule)
+
+**This rule defines the comprehensive UI development workflow for the InsightHub frontend application, integrating all UI development practices and processes.**
+
+## Key Principles
+- **Component-driven development:** Build UI components in isolation before integration
+- **Design system first:** Use established design tokens and patterns
+- **Test-driven development:** Write tests alongside component development
+- **Accessibility by default:** Ensure WCAG 2.1 AA compliance from the start
+- **Performance conscious:** Consider performance implications in every decision
+
+### DO / DON'T Examples
+```svelte
+<!-- ✅ DO: Follow the complete component development workflow -->
+<script lang="ts">
+  // 1. Import types and establish interface
+  import type { ButtonProps } from '../types/index.js';
+  
+  // 2. Define props with proper TypeScript
+  export let variant: ButtonProps['variant'] = 'primary';
+  export let disabled: boolean = false;
+  
+  // 3. Include accessibility props
+  let className: string = '';
+  export { className as class };
+  export let testId: string | undefined = undefined;
+  
+  // 4. Implement proper event handling
+  export let onClick: (() => void) | undefined = undefined;
+  
+  // 5. Use design system tokens
+  $: variantClasses = {
+    primary: 'bg-primary-600 hover:bg-primary-700 text-white',
+    secondary: 'bg-secondary-200 hover:bg-secondary-300 text-secondary-900'
+  }[variant];
+</script>
+
+<!-- 6. Implement semantic HTML with ARIA -->
+<button
+  type="button"
+  class="{variantClasses} px-4 py-2 rounded-lg font-medium transition-colors {className}"
+  {disabled}
+  data-testid={testId}
+  aria-disabled={disabled}
+  on:click={onClick}
+  on:click
+  on:focus
+  on:blur
+>
+  <slot />
+</button>
+
+<!-- ❌ DON'T: Skip workflow steps -->
+<script>
+  export let variant = 'primary'; // No TypeScript
+  export let onClick; // No type safety
+</script>
+
+<div class="button bg-blue-500 p-2" on:click={onClick}> <!-- No semantic HTML -->
+  <slot />
+</div>
+```
+
+## Development Workflow Process
+
+### 1. Component Planning Phase
+```markdown
+## Component Planning Checklist
+
+### Design Analysis
+- [ ] Review design specifications and requirements
+- [ ] Identify component variants and states
+- [ ] Define responsive behavior requirements
+- [ ] Check accessibility requirements
+- [ ] Identify reusable patterns
+
+### Technical Planning
+- [ ] Define TypeScript interfaces
+- [ ] Plan component API (props, events, slots)
+- [ ] Identify dependencies and imports
+- [ ] Plan testing strategy
+- [ ] Consider performance implications
+
+### Design System Integration
+- [ ] Verify design tokens are available
+- [ ] Check for existing similar components
+- [ ] Plan for design system consistency
+- [ ] Identify any new tokens needed
+```
+
+### 2. Component Development Phase
+```typescript
+// Step 1: Create TypeScript interfaces
+// src/lib/types/index.ts
+export interface ComponentProps extends BaseComponentProps {
+  /** Component variant */
+  variant?: 'primary' | 'secondary' | 'outline';
+  
+  /** Component size */
+  size?: 'sm' | 'md' | 'lg';
+  
+  /** Disabled state */
+  disabled?: boolean;
+  
+  /** Click handler */
+  onClick?: () => void;
+}
+
+// Step 2: Implement component with full workflow
+// src/lib/components/Component.svelte
+// [Complete component implementation following standards]
+
+// Step 3: Export component
+// src/lib/index.ts
+export { default as Component } from './components/Component.svelte';
+```
+
+### 3. Testing Phase
+```typescript
+// Step 1: Unit tests
+// src/lib/components/Component.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import Component from './Component.svelte';
+
+describe('Component', () => {
+  // Test all variants, states, and interactions
+  // Include accessibility tests
+  // Test error conditions
+});
+
+// Step 2: E2E tests (if needed)
+// tests/component-integration.spec.ts
+import { test, expect } from '@playwright/test';
+
+test.describe('Component Integration', () => {
+  // Test component in real application context
+  // Test cross-browser compatibility
+  // Test responsive behavior
+});
+```
+
+### 4. Documentation Phase
+```svelte
+<!-- Step 1: Add JSDoc comments to interfaces -->
+/**
+ * Primary button component for user actions
+ * 
+ * @example
+ * ```svelte
+ * <Button variant="primary" onClick={handleSubmit}>
+ *   Submit Form
+ * </Button>
+ * ```
+ */
+
+<!-- Step 2: Create usage examples -->
+<!-- examples/Button.examples.svelte -->
+<script>
+  import Button from '../src/lib/components/Button.svelte';
+</script>
+
+<div class="space-y-4">
+  <h2>Button Examples</h2>
+  
+  <div class="space-x-2">
+    <Button variant="primary">Primary</Button>
+    <Button variant="secondary">Secondary</Button>
+    <Button variant="outline">Outline</Button>
+  </div>
+</div>
+```
+
+## Development Environment Setup
+
+### Required Tools and Extensions
+```json
+// .vscode/extensions.json
+{
+  "recommendations": [
+    "svelte.svelte-vscode",
+    "bradlc.vscode-tailwindcss",
+    "ms-playwright.playwright",
+    "vitest.explorer",
+    "deque-systems.vscode-axe-linter",
+    "ms-vscode.vscode-typescript-next"
+  ]
+}
+```
+
+### Development Scripts
+```json
+// package.json
+{
+  "scripts": {
+    "dev": "vite dev --host",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage",
+    "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/accessibility.spec.ts",
+    "lint": "eslint . --ext .js,.ts,.svelte",
+    "lint:fix": "eslint . --ext .js,.ts,.svelte --fix",
+    "format": "prettier --write .",
+    "type-check": "svelte-check --tsconfig ./tsconfig.json",
+    "perf:audit": "lighthouse http://localhost:4173 --output=html"
+  }
+}
+```
+
+## Component Development Standards
+
+### File Structure
+```
+src/lib/components/
+├── base/                    # Foundation components
+│   ├── Button.svelte
+│   ├── Button.test.ts
+│   ├── Input.svelte
+│   ├── Input.test.ts
+│   └── Card.svelte
+├── auth/                    # Feature components
+│   ├── LoginForm.svelte
+│   ├── LoginForm.test.ts
+│   └── SignUpForm.svelte
+├── content/                 # Domain components
+│   ├── ContentCard.svelte
+│   ├── ContentFeed.svelte
+│   └── ContentFilters.svelte
+└── layout/                  # Layout components
+    ├── MainNavigation.svelte
+    ├── PageLayout.svelte
+    └── Sidebar.svelte
+```
+
+### Component Lifecycle
+```mermaid
+graph TD
+    A[Plan Component] --> B[Define Types]
+    B --> C[Implement Component]
+    C --> D[Write Tests]
+    D --> E[Test Accessibility]
+    E --> F[Performance Check]
+    F --> G[Documentation]
+    G --> H[Code Review]
+    H --> I[Integration]
+    I --> J[Monitor Performance]
+```
+
+### Quality Gates
+```markdown
+## Component Quality Checklist
+
+### Code Quality
+- [ ] TypeScript interfaces defined
+- [ ] Props properly typed with defaults
+- [ ] Event handlers implemented correctly
+- [ ] Error boundaries considered
+- [ ] Performance optimized
+
+### Design System
+- [ ] Uses design system tokens
+- [ ] Follows component patterns
+- [ ] Responsive design implemented
+- [ ] Dark mode support (if applicable)
+- [ ] Animation/transitions appropriate
+
+### Accessibility
+- [ ] Semantic HTML used
+- [ ] ARIA attributes correct
+- [ ] Keyboard navigation works
+- [ ] Screen reader tested
+- [ ] Color contrast verified
+
+### Testing
+- [ ] Unit tests written (80%+ coverage)
+- [ ] Accessibility tests pass
+- [ ] E2E tests (if needed)
+- [ ] Cross-browser tested
+- [ ] Performance tested
+
+### Documentation
+- [ ] JSDoc comments added
+- [ ] Usage examples created
+- [ ] Props documented
+- [ ] Edge cases noted
+```
+
+## Integration Workflow
+
+### Git Workflow
+```bash
+# 1. Create feature branch
+git checkout -b feature/new-component
+
+# 2. Implement component following workflow
+# ... development work ...
+
+# 3. Run quality checks
+npm run lint
+npm run type-check
+npm run test:coverage
+npm run test:a11y
+
+# 4. Commit with conventional format
+git commit -m "feat(ui): add new Button component with variants"
+
+# 5. Push and create PR
+git push origin feature/new-component
+```
+
+### Code Review Checklist
+```markdown
+## Code Review Checklist
+
+### Component Implementation
+- [ ] Follows established patterns
+- [ ] TypeScript properly implemented
+- [ ] Error handling appropriate
+- [ ] Performance considerations addressed
+
+### Design System Compliance
+- [ ] Uses design tokens consistently
+- [ ] Follows spacing/typography scale
+- [ ] Responsive design implemented
+- [ ] Accessibility standards met
+
+### Testing Coverage
+- [ ] Unit tests comprehensive
+- [ ] Accessibility tests included
+- [ ] Edge cases covered
+- [ ] Performance implications tested
+
+### Documentation
+- [ ] Props documented
+- [ ] Usage examples provided
+- [ ] Breaking changes noted
+- [ ] Migration guide (if needed)
+```
+
+## Performance Monitoring
+
+### Development Performance Checks
+```typescript
+// src/lib/utils/performance.ts
+export function measureComponentPerformance(componentName: string) {
+  return {
+    start() {
+      performance.mark(`${componentName}-start`);
+    },
+    end() {
+      performance.mark(`${componentName}-end`);
+      performance.measure(
+        `${componentName}-duration`,
+        `${componentName}-start`,
+        `${componentName}-end`
+      );
+      
+      const measure = performance.getEntriesByName(`${componentName}-duration`)[0];
+      console.log(`${componentName} render time:`, measure.duration);
+    }
+  };
+}
+```
+
+### Bundle Size Monitoring
+```javascript
+// vite.config.js
+import { defineConfig } from 'vite';
+import { sveltekit } from '@sveltejs/kit/vite';
+
+export default defineConfig({
+  plugins: [
+    sveltekit(),
+    {
+      name: 'bundle-size-monitor',
+      generateBundle(options, bundle) {
+        Object.keys(bundle).forEach(fileName => {
+          const file = bundle[fileName];
+          if (file.type === 'chunk' && file.code.length > 100000) {
+            console.warn(`Large chunk detected: ${fileName} (${file.code.length} bytes)`);
+          }
+        });
+      }
+    }
+  ]
+});
+```
+
+## Debugging and Troubleshooting
+
+### Common Development Issues
+```markdown
+## Troubleshooting Guide
+
+### TypeScript Errors
+- **Issue**: Props not properly typed
+- **Solution**: Define interfaces in types/index.ts and import correctly
+
+### Styling Issues
+- **Issue**: TailwindCSS classes not applying
+- **Solution**: Check class names, verify config, restart dev server
+
+### Accessibility Violations
+- **Issue**: axe-core test failures
+- **Solution**: Review ARIA attributes, semantic HTML, keyboard navigation
+
+### Performance Issues
+- **Issue**: Component causing layout shifts
+- **Solution**: Reserve space, use aspect ratios, optimize images
+
+### Testing Failures
+- **Issue**: Components not rendering in tests
+- **Solution**: Check test setup, mock dependencies, verify imports
+```
+
+### Development Tools
+```typescript
+// src/lib/utils/dev-tools.ts
+export const devTools = {
+  // Component inspector
+  inspectComponent(element: HTMLElement) {
+    console.log('Component data:', {
+      tagName: element.tagName,
+      classes: element.className,
+      attributes: Array.from(element.attributes),
+      computedStyle: getComputedStyle(element)
+    });
+  },
+  
+  // Performance profiler
+  profileRender(componentName: string, renderFn: () => void) {
+    const start = performance.now();
+    renderFn();
+    const end = performance.now();
+    console.log(`${componentName} render time: ${end - start}ms`);
+  },
+  
+  // Accessibility checker
+  checkA11y(element: HTMLElement) {
+    const issues = [];
+    
+    // Check for missing alt text
+    const images = element.querySelectorAll('img:not([alt])');
+    if (images.length > 0) {
+      issues.push(`${images.length} images missing alt text`);
+    }
+    
+    // Check for missing labels
+    const inputs = element.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');
+    if (inputs.length > 0) {
+      issues.push(`${inputs.length} inputs missing labels`);
+    }
+    
+    return issues;
+  }
+};
+```
+
+---
+
+## See also
+- [svelte_component_ui.mdc](mdc:svelte_component_ui.mdc)
+- [tailwind_design_ui.mdc](mdc:tailwind_design_ui.mdc)
+- [testing_ui.mdc](mdc:testing_ui.mdc)
+- [accessibility_ui.mdc](mdc:accessibility_ui.mdc)
+- [performance_ui.mdc](mdc:performance_ui.mdc)
+
+---
+
+## Maintenance Notes
+- **Update workflow as new tools and patterns emerge**
+- **Review and refine quality gates based on project evolution**
+- **Add new troubleshooting scenarios as they are encountered**
+- **Keep development environment setup current with latest tools**
+

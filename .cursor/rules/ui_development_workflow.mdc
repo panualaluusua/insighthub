@@ -3,129 +3,289 @@ description:
 globs: 
 alwaysApply: false
 ---
-# UI Development Workflow with AI Tools (Tiered Approach)
+# UI Development Workflow (UI Rule)
 
-**This rule defines the optimal AI-driven development workflow for InsightHub frontend development using SvelteKit + TypeScript + TailwindCSS, starting with free tools and scaling up as needed.**
+**This rule defines the comprehensive UI development workflow for the InsightHub frontend application, serving as the central hub for all UI development practices.**
 
-## 🆓 **Tier 1: Free Foundation Workflow (Current)**
-
-### Core Free Tools
-- **Claude Designer**: Use existing Claude/Cursor for parallel UI generation
-- **Git Worktrees**: Free isolated development environments
-- **TailwindCSS**: Open source styling with design system
-- **SvelteKit**: Free framework with excellent performance
-- **Playwright**: Free automated testing
-- **Vitest**: Free unit testing
-
-### Phase 1: Foundation with Claude Designer
-- **Primary Tool**: Claude/Cursor for UI component generation
-- **Focus**: Create foundational screens using our established design system
-- **Method**: Single-agent approach initially, then parallel commands for variations
-
-### Phase 2: Parallel Iteration (Free Approach)
-- **Tool**: Git worktrees + multiple Cursor instances
-- **Process**: 
-  1. Create 3 worktrees for different UI approaches
-  2. Use `/iterate_design` command to generate variations
-  3. Compare and merge best elements
-- **Output**: 3-5 variations per component/screen
-
-### Phase 3: Integration & Testing
-- **Testing**: Playwright for automated E2E testing
-- **Integration**: Merge best variations into main branch
-- **Deployment**: Vercel free tier for staging
-
-## 🚀 **Tier 2: Enhanced Workflow (Future)**
-
-### When to Upgrade
-- **Trigger 1**: Team grows beyond 2 developers
-- **Trigger 2**: Need faster iteration cycles (>10 components/week)
-- **Trigger 3**: Client work requires premium design quality
-
-### Additional Tools
-- **V0ero Model** (~$10-30/month): For rapid UI foundation generation
-- **Superdesign Extension** (~$15/month): Enhanced visual iteration
-- **Advanced Claude API Credits**: For heavy parallel processing
-
-## 🏆 **Tier 3: Professional Workflow (Scale)**
-
-### When to Upgrade
-- **Trigger 1**: Production app with >1000 users
-- **Trigger 2**: Multiple client projects simultaneously
-- **Trigger 3**: Revenue justifies premium tools
-
-### Premium Tools
-- **21st.dev Component Library** (~$50/month): High-quality component enhancement
-- **Advanced Playwright Cloud**: Scaled testing infrastructure
-- **Professional Design Tools**: Figma plugins, advanced prototyping
-
-## Current Implementation (Tier 1)
+## Key Principles
+- **Component-driven development:** Build UI components in isolation before integration
+- **Design system first:** Use established design tokens and patterns consistently
+- **Accessibility by default:** Ensure WCAG 2.1 AA compliance from the start
+- **Test-driven development:** Write tests alongside component development
+- **Performance conscious:** Consider performance implications in every decision
+- **TypeScript-first:** All components must use proper TypeScript interfaces
 
 ### DO / DON'T Examples
-```markdown
-# ✅ DO: Start with free Claude Designer parallel generation
-# ❌ DON'T: Jump to paid tools before validating workflow
-# ✅ DO: Use git worktrees for isolated UI experiments
-# ❌ DON'T: Work on main branch for UI iterations
-# ✅ DO: Create 3-5 variations before choosing final design
-# ❌ DON'T: Settle for first generated UI
+```svelte
+<!-- ✅ DO: Follow complete UI development workflow -->
+<script lang="ts">
+  // 1. Import proper types
+  import type { ButtonProps } from '../types/index.js';
+  
+  // 2. Define props with TypeScript
+  export let variant: ButtonProps['variant'] = 'primary';
+  export let disabled: boolean = false;
+  
+  // 3. Include accessibility and testing props
+  let className: string = '';
+  export { className as class };
+  export let testId: string | undefined = undefined;
+  
+  // 4. Use design system tokens
+  $: variantClasses = {
+    primary: 'bg-primary-600 hover:bg-primary-700 text-white',
+    secondary: 'bg-secondary-200 hover:bg-secondary-300 text-secondary-900'
+  }[variant];
+</script>
+
+<!-- 5. Implement semantic HTML with ARIA -->
+<button
+  type="button"
+  class="{variantClasses} px-4 py-2 rounded-lg font-medium transition-colors {className}"
+  {disabled}
+  data-testid={testId}
+  aria-disabled={disabled}
+  on:click
+  on:focus
+  on:blur
+>
+  <slot />
+</button>
+
+<!-- ❌ DON'T: Skip workflow steps -->
+<script>
+  export let variant = 'primary'; // No TypeScript
+</script>
+
+<div class="button bg-blue-500 p-2"> <!-- No semantic HTML, hardcoded styles -->
+  <slot />
+</div>
 ```
 
-### Free Workflow Commands
+## Complete Development Workflow
 
-#### `/iterate_design` (Free Version)
-1. Create 3 git worktrees
-2. Generate 3 UI variations using Claude
-3. Use TailwindCSS design system consistently
-4. Compare results side-by-side
-5. Merge best elements
+### Phase 1: Component Planning
+```markdown
+## Component Planning Checklist
 
-#### `/extract_design_system` (Free Version)
-1. Analyze existing UI screenshots
-2. Extract color palette manually
-3. Document spacing and typography
-4. Create TailwindCSS config
-5. Save as design-system.json
+### Requirements Analysis
+- [ ] Review design specifications and mockups
+- [ ] Identify component variants and states
+- [ ] Define responsive behavior requirements
+- [ ] Document accessibility requirements
+- [ ] Plan for error states and edge cases
 
-### Component Development Process
-1. **Research**: Study existing patterns and best practices
-2. **Sketch**: Create simple wireframes or descriptions
-3. **Generate**: Use Claude to create 3 variations
-4. **Test**: Quick manual testing in browser
-5. **Refine**: Iterate based on feedback
-6. **Document**: Add to component library
+### API Design
+- [ ] Define component props interface
+- [ ] Plan event handlers and callbacks
+- [ ] Design slot architecture
+- [ ] Consider component composition
+- [ ] Plan for extensibility
 
-### Quality Metrics (Free Tier)
-- **Performance**: <50KB bundle size per page
-- **Accessibility**: WCAG 2.1 AA compliance
-- **Mobile**: Responsive design required
-- **Testing**: >80% component test coverage
+### Technical Planning
+- [ ] Identify design system tokens needed
+- [ ] Plan TypeScript interfaces
+- [ ] Consider performance implications
+- [ ] Plan testing strategy
+- [ ] Identify dependencies
+```
 
-## Migration Path
+### Phase 2: Implementation
+```typescript
+// Step 1: Define TypeScript interfaces
+// src/lib/types/index.ts
+export interface ComponentProps extends BaseComponentProps {
+  /** Component visual variant */
+  variant?: 'primary' | 'secondary' | 'outline';
+  
+  /** Component size */
+  size?: 'sm' | 'md' | 'lg';
+  
+  /** Disabled state */
+  disabled?: boolean;
+  
+  /** Loading state */
+  loading?: boolean;
+  
+  /** Click event handler */
+  onClick?: () => void;
+}
 
-### Tier 1 → Tier 2 Migration
-1. Validate workflow effectiveness (measure iteration speed)
-2. Identify bottlenecks in current process
-3. Calculate ROI of paid tools
-4. Implement one paid tool at a time
-5. Measure improvement metrics
+// Step 2: Implement component following all standards
+// [See svelte_component_ui.mdc for complete implementation patterns]
 
-### Success Metrics for Upgrade Decision
-- **Speed**: UI iteration time <2 hours per component
-- **Quality**: Zero accessibility issues
-- **Consistency**: 100% design system compliance
-- **Testing**: Automated visual regression testing
+// Step 3: Export component
+// src/lib/index.ts
+export { default as Component } from './components/Component.svelte';
+```
+
+### Phase 3: Testing Implementation
+```typescript
+// Step 1: Unit tests with full coverage
+// src/lib/components/Component.test.ts
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/svelte';
+import Component from './Component.svelte';
+
+describe('Component', () => {
+  // Test rendering with default props
+  // Test all prop variations
+  // Test user interactions
+  // Test accessibility compliance
+  // Test error states
+});
+
+// Step 2: E2E tests (if component requires integration testing)
+// tests/component-integration.spec.ts
+// [See testing_ui.mdc for complete testing patterns]
+```
+
+### Phase 4: Quality Assurance
+```markdown
+## Quality Gates Checklist
+
+### Code Quality
+- [ ] TypeScript interfaces properly defined
+- [ ] Component follows established patterns
+- [ ] Error handling implemented
+- [ ] Performance optimized
+- [ ] Bundle size impact assessed
+
+### Design System Compliance
+- [ ] Uses design system tokens exclusively
+- [ ] Follows component patterns
+- [ ] Responsive design implemented
+- [ ] Animation/transitions appropriate
+- [ ] Dark mode support (if applicable)
+
+### Accessibility Compliance
+- [ ] Semantic HTML structure
+- [ ] ARIA attributes correct
+- [ ] Keyboard navigation functional
+- [ ] Screen reader compatibility
+- [ ] Color contrast verified (WCAG AA)
+- [ ] Focus management implemented
+
+### Testing Coverage
+- [ ] Unit tests written (80%+ coverage)
+- [ ] Accessibility tests pass
+- [ ] Cross-browser compatibility verified
+- [ ] Performance benchmarks met
+- [ ] E2E tests (if required)
+
+### Documentation
+- [ ] JSDoc comments added
+- [ ] Usage examples created
+- [ ] Props and events documented
+- [ ] Accessibility features noted
+- [ ] Migration guide (if breaking changes)
+```
+
+## File Organization Standards
+
+### Component Structure
+```
+src/lib/components/
+├── base/                    # Foundation components
+│   ├── Button.svelte
+│   ├── Button.test.ts
+│   ├── Input.svelte
+│   ├── Input.test.ts
+│   └── Card.svelte
+├── auth/                    # Feature-specific components
+│   ├── LoginForm.svelte
+│   ├── LoginForm.test.ts
+│   └── SignUpForm.svelte
+├── content/                 # Domain-specific components
+│   ├── ContentCard.svelte
+│   ├── ContentFeed.svelte
+│   └── ContentFilters.svelte
+├── layout/                  # Layout and navigation
+│   ├── MainNavigation.svelte
+│   ├── PageLayout.svelte
+│   └── Sidebar.svelte
+└── forms/                   # Form-specific components
+    ├── FormField.svelte
+    └── FormValidation.svelte
+
+src/lib/types/
+└── index.ts                 # All TypeScript interfaces
+
+tests/
+├── unit/                    # Component unit tests
+├── e2e/                     # End-to-end tests
+└── accessibility/           # Accessibility-specific tests
+```
+
+## Rule Integration Hub
+
+This workflow integrates with and references the following specialized UI rules:
+
+### Core UI Development Rules
+- **[svelte_component_ui.mdc](mdc:svelte_component_ui.mdc)** - SvelteKit component development standards
+- **[tailwind_design_ui.mdc](mdc:tailwind_design_ui.mdc)** - TailwindCSS design system standards
+- **[testing_ui.mdc](mdc:testing_ui.mdc)** - Frontend testing standards
+- **[accessibility_ui.mdc](mdc:accessibility_ui.mdc)** - Accessibility compliance standards
+- **[performance_ui.mdc](mdc:performance_ui.mdc)** - Frontend performance optimization
+
+### Integration with General Rules
+- **[dev_workflow.mdc](mdc:dev_workflow.mdc)** - General development workflow
+- **[taskmaster.mdc](mdc:taskmaster.mdc)** - Task management integration
+- **[tdd_testing.mdc](mdc:tdd_testing.mdc)** - Test-driven development principles
+
+## Troubleshooting Common Issues
+
+### TypeScript Issues
+```markdown
+**Problem**: Component props not properly typed
+**Solution**: Define interfaces in types/index.ts and import correctly
+
+**Problem**: Event handlers causing type errors
+**Solution**: Use proper function signatures with optional parameters
+```
+
+### Styling Issues
+```markdown
+**Problem**: TailwindCSS classes not applying
+**Solution**: Check class names, verify config, restart dev server
+
+**Problem**: Responsive design not working
+**Solution**: Verify mobile-first approach, check breakpoint usage
+```
+
+### Accessibility Issues
+```markdown
+**Problem**: axe-core test failures
+**Solution**: Review ARIA attributes, semantic HTML, keyboard navigation
+
+**Problem**: Screen reader compatibility issues
+**Solution**: Test with actual screen readers, verify announcements
+```
+
+### Performance Issues
+```markdown
+**Problem**: Component causing layout shifts
+**Solution**: Reserve space for dynamic content, use aspect ratios
+
+**Problem**: Large bundle sizes
+**Solution**: Implement code splitting, tree shaking, dynamic imports
+```
 
 ---
 
 ## See also
-- [memory_bank_taskmaster.mdc](mdc:memory_bank_taskmaster.mdc)
-- [python_development.mdc](mdc:python_development.mdc)
+- [svelte_component_ui.mdc](mdc:svelte_component_ui.mdc)
+- [tailwind_design_ui.mdc](mdc:tailwind_design_ui.mdc)
+- [testing_ui.mdc](mdc:testing_ui.mdc)
+- [accessibility_ui.mdc](mdc:accessibility_ui.mdc)
+- [performance_ui.mdc](mdc:performance_ui.mdc)
+- [dev_workflow.mdc](mdc:dev_workflow.mdc)
 
 ---
 
 ## Maintenance Notes
-- **Review tier progression monthly**
-- **Track workflow efficiency metrics**
-- **Update tool costs and capabilities quarterly**
+- **Update workflow as new UI patterns and tools emerge**
+- **Review quality gates quarterly and adjust based on project evolution**
+- **Add new troubleshooting scenarios as they are encountered**
+- **Keep integration references current with rule changes**
 

@@ -1,0 +1,94 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp"],
+      "env": {
+        "PLAYWRIGHT_BROWSERS_PATH": "0"
+      }
+    }
+  },
+  "playwright": {
+    "config": {
+      "use": {
+        "baseURL": "http://localhost:5173",
+        "viewport": { "width": 1280, "height": 720 },
+        "ignoreHTTPSErrors": true,
+        "screenshot": "only-on-failure",
+        "video": "retain-on-failure",
+        "trace": "retain-on-failure"
+      },
+      "projects": [
+        {
+          "name": "chromium",
+          "use": {
+            "channel": "chrome"
+          }
+        },
+        {
+          "name": "firefox", 
+          "use": {
+            "browserName": "firefox"
+          }
+        },
+        {
+          "name": "webkit",
+          "use": {
+            "browserName": "webkit"
+          }
+        },
+        {
+          "name": "mobile-chrome",
+          "use": {
+            "browserName": "chromium",
+            "viewport": { "width": 393, "height": 851 },
+            "deviceScaleFactor": 3,
+            "isMobile": true,
+            "hasTouch": true
+          }
+        },
+        {
+          "name": "mobile-safari",
+          "use": {
+            "browserName": "webkit",
+            "viewport": { "width": 390, "height": 844 },
+            "deviceScaleFactor": 3,
+            "isMobile": true,
+            "hasTouch": true
+          }
+        }
+      ],
+      "webServer": {
+        "command": "npm run dev",
+        "port": 5173,
+        "reuseExistingServer": true
+      }
+    },
+    "modes": {
+      "snapshot": {
+        "enabled": true,
+        "updateSnapshots": "missing",
+        "threshold": 0.2,
+        "animations": "disabled"
+      },
+      "vision": {
+        "enabled": true,
+        "aiModel": "claude-3-haiku",
+        "analysisPrompts": {
+          "accessibility": "Analyze this UI for accessibility issues and WCAG compliance",
+          "layout": "Describe the layout and visual hierarchy of this interface",
+          "usability": "Evaluate the usability and user experience of this interface",
+          "responsiveness": "Assess how well this interface adapts to different screen sizes"
+        }
+      }
+    },
+    "reporting": {
+      "outputDir": "test-results",
+      "reporters": [
+        ["html", { "open": "never" }],
+        ["json", { "outputFile": "test-results/results.json" }],
+        ["junit", { "outputFile": "test-results/results.xml" }]
+      ]
+    }
+  }
+} 

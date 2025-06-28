@@ -10,6 +10,8 @@
     contentHasMore 
   } from '../lib/stores/contentStore'
   import { testSupabaseConnection } from '$lib/test-supabase.js'
+  import { PageLayout, Sidebar } from '$lib'
+  import type { User } from '@supabase/supabase-js'
   
   // Lazy import components for better performance
   let ContentFilters: any
@@ -123,222 +125,205 @@
       alert('❌ Test error! Check console for details.')
     }
   }
+
+  // Sample sidebar sections for demonstration
+  const sidebarSections = [
+    {
+      title: 'Getting Started',
+      items: [
+        { href: '/feed', label: 'Explore Feed', icon: 'feed' },
+        { href: '/signup', label: 'Create Account', icon: 'user' },
+        { href: '/dashboard', label: 'Dashboard', icon: 'dashboard', requiresAuth: true }
+      ]
+    },
+    {
+      title: 'Features',
+      items: [
+        { href: '/features/ai', label: 'AI Insights', icon: 'trending' },
+        { href: '/features/curation', label: 'Content Curation', icon: 'bookmark' },
+        { href: '/features/analytics', label: 'Analytics', icon: 'grid' }
+      ]
+    }
+  ]
 </script>
 
-<svelte:head>
-  <title>InsightHub - Discover Content That Matters</title>
-  <meta name="description" content="Discover personalized content from Reddit, YouTube, and more sources curated by AI.">
-  
-  <!-- Preload critical resources -->
-  <link rel="preload" href="/api/content" as="fetch" crossorigin>
-  <link rel="dns-prefetch" href="https://bzbpdysqouhbsorffats.supabase.co">
-</svelte:head>
+<PageLayout 
+	title="Welcome to InsightHub" 
+	description="Discover, curate, and share the most valuable insights from across the web"
+	showSidebar={true}
+	sidebarPosition="left"
+	maxWidth="7xl"
+>
+	<svelte:fragment slot="sidebar">
+		<Sidebar sections={sidebarSections} showUserInfo={false} />
+	</svelte:fragment>
 
-{#if $user}
-  <!-- Authenticated Content Feed -->
-  <div class="min-h-screen bg-gray-50">
-    <!-- Header Section -->
-    <div class="bg-white shadow-sm border-b sticky top-0 z-10">
-      <div class="max-w-6xl mx-auto px-4 py-4">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div class="flex items-center gap-4">
-            <h1 class="text-2xl font-bold text-gray-900">Your Content Feed</h1>
-            <button
-              on:click={handleRefresh}
-              class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-600 hover:text-gray-900 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-              disabled={$contentLoading}
-            >
-              <svg class="w-4 h-4 {$contentLoading ? 'animate-spin' : ''}" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              Refresh
-            </button>
-          </div>
-          
-          <!-- View Toggle (Lazy Loaded) -->
-          {#if ViewToggle}
-            <ViewToggle compact={compactView} on:viewChange={handleViewChange} />
-          {/if}
-        </div>
-        
-        <!-- Filters Section (Lazy Loaded) -->
-        {#if ContentFilters}
-          <div class="mt-4">
-            <ContentFilters
-              on:search={handleSearch}
-              on:filter={handleFilter}
-              on:sort={handleSort}
-              on:clear={handleClearFilters}
-            />
-          </div>
-        {/if}
-      </div>
-    </div>
+	<svelte:fragment slot="header">
+		<div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-8 mb-8">
+			<h1 class="text-4xl font-bold text-gray-900 mb-4">
+				Welcome to InsightHub
+			</h1>
+			<p class="text-xl text-gray-600 mb-6 max-w-3xl">
+				Your intelligent content discovery platform. Find, organize, and share the most valuable insights from across the web with AI-powered recommendations.
+			</p>
+			<div class="flex flex-wrap gap-4">
+				<a 
+					href="/feed" 
+					class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+				>
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14-7H5m14 14H5" />
+					</svg>
+					Explore Feed
+				</a>
+				<a 
+					href="/signup" 
+					class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg border border-blue-600 hover:bg-blue-50 transition-colors"
+				>
+					<svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+						<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+					</svg>
+					Get Started
+				</a>
+			</div>
+		</div>
+	</svelte:fragment>
 
-    <!-- Main Content Area -->
-    <div class="max-w-6xl mx-auto px-4 py-6">
-      {#if $contentError}
-        <!-- Error State -->
-        <div class="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <div class="text-red-600 mb-2">
-            <svg class="w-8 h-8 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <h3 class="text-lg font-semibold text-red-900 mb-2">Error Loading Content</h3>
-          <p class="text-red-700 mb-4">{$contentError}</p>
-          <button
-            on:click={handleRefresh}
-            class="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Try Again
-          </button>
-        </div>
-        
-      {:else if showEmptyState}
-        <!-- Empty State -->
-        <div class="text-center py-12">
-          <div class="text-gray-400 mb-4">
-            <svg class="w-16 h-16 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-            </svg>
-          </div>
-          <h3 class="text-xl font-semibold text-gray-900 mb-2">No Content Yet</h3>
-          <p class="text-gray-600 mb-4 max-w-md mx-auto">
-            We're still collecting personalized content for you. Check back soon or try adjusting your filters.
-          </p>
-          <button
-            on:click={handleRefresh}
-            class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refresh Now
-          </button>
-        </div>
-        
-      {:else if hasContent && VirtualContentList}
-        <!-- Virtual Content List for Performance -->
-        <div class="bg-white rounded-lg shadow-sm border">
-          <VirtualContentList
-            items={$contentItems}
-            {itemHeight}
-            {compactView}
-            containerHeight={contentHeight}
-            on:loadMore={handleLoadMore}
-            on:itemClick={handleItemClick}
-          />
-        </div>
-        
-        <!-- Loading indicator for more content -->
-        {#if $contentLoading && hasContent}
-          <div class="text-center py-6">
-            <div class="inline-flex items-center gap-2 text-gray-600">
-              <svg class="w-5 h-5 animate-spin" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-              </svg>
-              <span>Loading more content...</span>
-            </div>
-          </div>
-        {/if}
-        
-      {:else if $contentLoading}
-        <!-- Initial Loading State with Skeletons -->
-        <div class="space-y-4">
-          {#each Array(5) as _, i}
-            <div class="bg-white rounded-lg border p-4 animate-pulse">
-              <div class="flex gap-4">
-                <div class="flex-shrink-0 w-12 h-12 bg-gray-200 rounded"></div>
-                <div class="flex-1 space-y-2">
-                  <div class="h-4 bg-gray-200 rounded w-3/4"></div>
-                  <div class="h-3 bg-gray-200 rounded w-1/2"></div>
-                  <div class="h-16 bg-gray-200 rounded w-full"></div>
-                </div>
-              </div>
-            </div>
-          {/each}
-        </div>
-      {/if}
-    </div>
-  </div>
-  
-{:else}
-  <!-- Landing Page for Non-Authenticated Users -->
-  <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-    <div class="max-w-4xl mx-auto px-4 py-16 text-center">
-      <h1 class="text-5xl font-bold text-gray-900 mb-6 leading-tight">
-        Discover Content That <span class="text-blue-600">Matters</span>
-      </h1>
-      <p class="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-        AI-powered content discovery from Reddit, YouTube, and more. 
-        Get personalized feeds that match your interests perfectly.
-      </p>
-      
-      <!-- Test Button (temporary) -->
-      <div class="mb-8">
-        <button 
-          on:click={runSupabaseTest}
-          class="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-lg transition-colors shadow-md"
-        >
-          🧪 Test Supabase Connection
-        </button>
-      </div>
-      
-      <div class="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-        <a 
-          href="/signup" 
-          class="inline-flex items-center justify-center px-8 py-3 bg-blue-600 text-white text-lg font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-        >
-          Get Started
-        </a>
-        <a 
-          href="/signin" 
-          class="inline-flex items-center justify-center px-8 py-3 bg-white text-blue-600 text-lg font-semibold rounded-lg border-2 border-blue-600 hover:bg-blue-50 transition-colors"
-        >
-          Sign In
-        </a>
-      </div>
-      
-      <!-- Feature Cards with Lazy Loading -->
-      {#if LazyLoad}
-        <LazyLoad>
-          <div class="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div class="text-blue-600 mb-4">
-                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">AI-Powered Ranking</h3>
-              <p class="text-gray-600">Smart algorithms curate content based on your interests and engagement patterns.</p>
-            </div>
-            
-            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div class="text-purple-600 mb-4">
-                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">Multi-Source</h3>
-              <p class="text-gray-600">Aggregate content from Reddit, YouTube, and other platforms in one unified feed.</p>
-            </div>
-            
-            <div class="bg-white rounded-xl p-6 shadow-lg hover:shadow-xl transition-shadow">
-              <div class="text-green-600 mb-4">
-                <svg class="w-12 h-12 mx-auto" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-900 mb-2">Daily Updates</h3>
-              <p class="text-gray-600">Fresh content delivered daily with efficient batch processing for optimal performance.</p>
-            </div>
-          </div>
-        </LazyLoad>
-      {/if}
-    </div>
-  </div>
-{/if}
+	<div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+		<!-- Feature Cards -->
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+			<div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
+				<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+				</svg>
+			</div>
+			<h3 class="text-lg font-semibold text-gray-900 mb-2">AI-Powered Discovery</h3>
+			<p class="text-gray-600">
+				Our intelligent algorithms learn from your preferences to surface the most relevant content from thousands of sources.
+			</p>
+		</div>
+
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+			<div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+				<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 5a2 2 0 012-2h10a2 2 0 012 2v16l-7-3.5L5 21V5z" />
+				</svg>
+			</div>
+			<h3 class="text-lg font-semibold text-gray-900 mb-2">Smart Curation</h3>
+			<p class="text-gray-600">
+				Save, organize, and categorize content with intelligent tagging and personalized collections.
+			</p>
+		</div>
+
+		<div class="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+			<div class="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+				<svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+					<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+				</svg>
+			</div>
+			<h3 class="text-lg font-semibold text-gray-900 mb-2">Social Sharing</h3>
+			<p class="text-gray-600">
+				Share insights with your network and discover what others in your field are reading and discussing.
+			</p>
+		</div>
+	</div>
+
+	<!-- How it Works Section -->
+	<div class="bg-gray-50 rounded-lg p-8 mb-12">
+		<h2 class="text-2xl font-bold text-gray-900 mb-6 text-center">How InsightHub Works</h2>
+		<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+			<div class="text-center">
+				<div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+					<span class="text-white font-bold text-lg">1</span>
+				</div>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">Connect Sources</h3>
+				<p class="text-gray-600">
+					Connect your favorite news sources, blogs, and content platforms to create a unified feed.
+				</p>
+			</div>
+			<div class="text-center">
+				<div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+					<span class="text-white font-bold text-lg">2</span>
+				</div>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">AI Analysis</h3>
+				<p class="text-gray-600">
+					Our AI analyzes content quality, relevance, and your reading patterns to personalize recommendations.
+				</p>
+			</div>
+			<div class="text-center">
+				<div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+					<span class="text-white font-bold text-lg">3</span>
+				</div>
+				<h3 class="text-lg font-semibold text-gray-900 mb-2">Discover & Share</h3>
+				<p class="text-gray-600">
+					Discover high-quality insights, save them to collections, and share with your professional network.
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Stats Section -->
+	<div class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+		<div class="text-center">
+			<div class="text-3xl font-bold text-blue-600 mb-2">10K+</div>
+			<div class="text-gray-600">Content Sources</div>
+		</div>
+		<div class="text-center">
+			<div class="text-3xl font-bold text-green-600 mb-2">1M+</div>
+			<div class="text-gray-600">Articles Analyzed</div>
+		</div>
+		<div class="text-center">
+			<div class="text-3xl font-bold text-purple-600 mb-2">50K+</div>
+			<div class="text-gray-600">Active Users</div>
+		</div>
+		<div class="text-center">
+			<div class="text-3xl font-bold text-orange-600 mb-2">95%</div>
+			<div class="text-gray-600">Satisfaction Rate</div>
+		</div>
+	</div>
+
+	<svelte:fragment slot="actions">
+		<div class="text-center">
+			<h2 class="text-2xl font-bold text-gray-900 mb-4">Ready to get started?</h2>
+			<p class="text-gray-600 mb-6">
+				Join thousands of professionals who rely on InsightHub for their daily content discovery.
+			</p>
+			<div class="flex flex-wrap justify-center gap-4">
+				<a 
+					href="/signup" 
+					class="inline-flex items-center px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors"
+				>
+					Start Free Trial
+				</a>
+				<a 
+					href="/demo" 
+					class="inline-flex items-center px-8 py-3 bg-white text-gray-700 font-medium rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+				>
+					Watch Demo
+				</a>
+			</div>
+		</div>
+	</svelte:fragment>
+</PageLayout>
+
+<style>
+	/* Custom styles for the home page */
+	:global(.hero-gradient) {
+		background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+	}
+
+	/* Smooth animations */
+	.grid > div {
+		transition: transform 0.2s ease-in-out;
+	}
+
+	.grid > div:hover {
+		transform: translateY(-2px);
+	}
+
+	/* Focus styles for accessibility */
+	a:focus {
+		outline: 2px solid #3b82f6;
+		outline-offset: 2px;
+	}
+</style>
