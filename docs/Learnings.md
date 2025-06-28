@@ -35,12 +35,20 @@
 - Hyvä rakenne (src/, docs/, testit, ympäristömuuttujat) tekee projektista helposti ylläpidettävän.
 - Dokumentointi ja näkyvä kehityshistoria auttavat sekä nykyistä että tulevaa kehitystä.
 
+<<<<<<< HEAD
+=======
+---
+
+Tämä tiedosto kokoaa keskeiset opit InsightHub-projektin toteutuksesta, ja toimii muistilistana tuleviin projekteihin.
+
+>>>>>>> 0135ef6e1f7344876442e2f8565de0df9f07ddd0
 ## 8. Supabase ja MCP: opit ja käytännöt
 - **Supabase** valittiin projektin tietokantapalveluksi, koska se tarjoaa PostgreSQL:n, autentikaation, REST/GraphQL-rajapinnat ja vektorituen (pgvector) helposti yhdestä paikasta.
 - Supabasen käyttöönotto on nopeaa ja kehitys sujuu ilman raskasta infraa. Taulujen ja skeeman hallinta onnistuu sekä web-käyttöliittymästä että CLI:llä/migraatioilla.
 - **MCP (Model Context Protocol)** mahdollistaa AI-avustajien (esim. Windsurf, Cursor, Claude) yhdistämisen suoraan Supabase-projektiin. AI-avustaja näkee skeeman ja voi ehdottaa SQL-migraatioita, kyselyitä ja tietomallin muutoksia suoraan kehitysympäristössä.
 - MCP:n käyttöönotto vaatii Personal Access Tokenin luomisen Supabasessa ja yhteyden lisäämisen AI-työkalun asetuksiin.
 - Yhdessä Supabase ja MCP nopeuttavat kehitystä, vähentävät virheitä ja mahdollistavat tuottavamman AI-avusteisen ohjelmistokehityksen.
+<<<<<<< HEAD
 
 ## 9. Taskmaster, LLM API -käyttö, Memory Bank ja MCP
 - **Taskmaster** on tehokas tehtävienhallintatyökalu, joka mahdollistaa projektin pilkkomisen pieniin, hallittaviin osiin (tasks, subtasks) ja seuraa etenemistä sekä riippuvuuksia.
@@ -100,3 +108,5 @@
 ---
 
 Tämä tiedosto kokoaa keskeiset opit InsightHub-projektin toteutuksesta, ja toimii muistilistana tuleviin projekteihin.
+=======
+>>>>>>> 0135ef6e1f7344876442e2f8565de0df9f07ddd0

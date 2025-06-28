@@ -45,6 +45,7 @@ htmlcov/
 
 #n8n
 n8n_API.py
+<<<<<<< HEAD
 n8n_api_methods.md
 
 # Added by Task Master AI
@@ -75,3 +76,6 @@ ui-dev/
 
 # Cursor MCP config (contains secrets)
 .cursor/mcp.json
+=======
+n8n_api_methods.md
+>>>>>>> 0135ef6e1f7344876442e2f8565de0df9f07ddd0

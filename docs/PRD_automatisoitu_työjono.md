@@ -158,6 +158,7 @@ Tämä teknologiasuunnitelma perustuu "Nopea Prototyyppi / Low-Code" -lähestymi
 ---
 
 **Yhteenveto:**
+<<<<<<< HEAD
 Tämä teknologiasuunnitelma mahdollistaa nopean kehityksen, testauksen ja skaalautuvuuden. Voit siirtyä MVP:stä tuotantoon vaiheittain ilman tarvetta uusia koko arkkitehtuuria.
 
 ---
@@ -204,3 +205,6 @@ Seuraavat datatekniikkaan keskittyvät lähteet tulee lisätä järjestelmään 
 - **Data Engineering Show**
 - **Monday Morning Data Chat**
 - **The Analytics Engineering Podcast (dbt Labs)**
+=======
+Tämä teknologiasuunnitelma mahdollistaa nopean kehityksen, testauksen ja skaalautuvuuden. Voit siirtyä MVP:stä tuotantoon vaiheittain ilman tarvetta uusia koko arkkitehtuuria.
+>>>>>>> 0135ef6e1f7344876442e2f8565de0df9f07ddd0
