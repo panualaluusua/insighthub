@@ -22,8 +22,12 @@
 		"test:e2e:headed": "playwright test --headed",
 		"test:a11y": "playwright test --grep=\"accessible\"",
 		"audit:a11y": "playwright test tests/accessibility.spec.ts",
-		"test:all": "npm run test && npm run test:e2e",
-		"ci:test": "npm run test:coverage && npm run test:e2e"
+		"test:ai": "playwright test tests/ai-powered-*.spec.ts",
+		"test:ai:headed": "playwright test tests/ai-powered-*.spec.ts --headed",
+		"test:bug-detection": "playwright test tests/ai-powered-visual.spec.ts --grep='AI Bug Detection'",
+		"analyze:ai": "node scripts/analyze-ai-test-results.cjs",
+		"test:all": "npm run test && npm run test:e2e && npm run test:ai",
+		"ci:test": "npm run test:coverage && npm run test:e2e && npm run test:ai"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.10.2",
