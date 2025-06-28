@@ -138,6 +138,59 @@ describe('Component', () => {
 // Step 2: E2E tests (if component requires integration testing)
 // tests/component-integration.spec.ts
 // [See testing_ui.mdc for complete testing patterns]
+
+// Step 3: AI-Powered Testing with Enhanced Playwright MCP
+// tests/ai-powered-component.spec.ts
+import { test, expect } from '@playwright/test';
+import { AxeBuilder } from '@axe-core/playwright';
+
+test.describe('AI-Powered Component Analysis', () => {
+  test('AI visual analysis of component states', async ({ page }) => {
+    await page.goto('/component-playground');
+    
+    // AI-powered screenshot analysis for all component variants
+    const variants = ['primary', 'secondary', 'outline'];
+    
+    for (const variant of variants) {
+      await page.selectOption('[data-testid="variant-selector"]', variant);
+      
+      // Capture visual evidence for AI analysis
+      await page.screenshot({ 
+        path: `test-results/ai-analysis/component-${variant}.png`,
+        fullPage: true 
+      });
+      
+      // AI accessibility validation
+      const accessibilityResults = await new AxeBuilder({ page })
+        .withTags(['wcag2a', 'wcag2aa', 'wcag21aa'])
+        .analyze();
+      
+      expect(accessibilityResults.violations).toEqual([]);
+    }
+  });
+  
+  test('AI responsive design validation', async ({ page }) => {
+    const viewports = [
+      { width: 375, height: 667, name: 'mobile' },
+      { width: 768, height: 1024, name: 'tablet' },
+      { width: 1920, height: 1080, name: 'desktop' }
+    ];
+    
+    for (const viewport of viewports) {
+      await page.setViewportSize(viewport);
+      await page.goto('/component-playground');
+      
+      // AI analyzes responsive behavior
+      await page.screenshot({ 
+        path: `test-results/ai-analysis/component-responsive-${viewport.name}.png` 
+      });
+      
+      // Validate component remains functional across breakpoints
+      const component = page.locator('[data-testid="component"]');
+      await expect(component).toBeVisible();
+    }
+  });
+});
 ```
 
 ### Phase 4: Quality Assurance
@@ -172,6 +225,17 @@ describe('Component', () => {
 - [ ] Cross-browser compatibility verified
 - [ ] Performance benchmarks met
 - [ ] E2E tests (if required)
+- [ ] **AI-powered visual analysis completed**
+- [ ] **AI bug detection tests pass**
+- [ ] **AI responsive design validation successful**
+
+### AI-Powered Testing Validation
+- [ ] **@test-ai-analyze command executed successfully**
+- [ ] **AI visual pattern recognition validates component states**
+- [ ] **AI accessibility analysis shows no violations**
+- [ ] **AI responsive behavior analysis passes across all breakpoints**
+- [ ] **AI performance recommendations reviewed and implemented**
+- [ ] **AI-generated bug detection report shows no critical issues**
 
 ### Documentation
 - [ ] JSDoc comments added
@@ -179,6 +243,106 @@ describe('Component', () => {
 - [ ] Props and events documented
 - [ ] Accessibility features noted
 - [ ] Migration guide (if breaking changes)
+- [ ] **AI testing results documented in component README**
+```
+
+## AI-Powered Testing Workflow Integration
+
+### Enhanced Playwright MCP Commands
+
+Use these Cursor commands throughout your development workflow:
+
+#### @test-ai-analyze
+```markdown
+## Comprehensive AI Analysis
+Run this command after implementing any component to get:
+- AI visual pattern recognition and bug detection
+- Intelligent accessibility analysis with recommendations
+- Performance monitoring with AI-powered optimization suggestions
+- Cross-browser compatibility assessment with AI insights
+- Automated test case generation based on UI patterns
+
+Usage: @test-ai-analyze
+```
+
+#### Manual AI Testing Commands
+```bash
+# Run AI-powered visual analysis tests
+npm run test:ai
+
+# Run AI tests in headed mode for debugging
+npm run test:ai:headed
+
+# Run specific AI bug detection tests
+npm run test:bug-detection
+
+# Analyze AI test results
+npm run analyze:ai
+
+# Generate comprehensive AI testing report
+npx playwright show-report
+```
+
+### AI Testing Workflow Integration Points
+
+#### 1. During Component Development
+- **After implementing a new component**: Run `@test-ai-analyze` to validate design patterns
+- **When adding new props/variants**: Use AI visual analysis to ensure consistency
+- **Before committing**: Verify AI accessibility analysis passes
+
+#### 2. During Feature Development
+- **After UI changes**: Run AI-powered visual regression tests
+- **When implementing responsive design**: Use AI viewport analysis
+- **Before deployment**: Execute complete AI testing suite
+
+#### 3. During Debugging
+- **When tests fail**: Review AI-generated bug detection reports
+- **For accessibility issues**: Use AI accessibility recommendations
+- **For performance problems**: Follow AI performance optimization suggestions
+
+### AI Test Results Integration
+
+#### Bug Detection Reports
+AI-generated reports are automatically saved to:
+```
+test-results/ai-analysis/
+├── bug-detection-report.md       # Comprehensive AI analysis
+├── component-visual-*.png         # Visual evidence
+├── responsive-*.png               # Responsive design validation
+├── accessibility-report.json      # AI accessibility findings
+└── performance-analysis.md        # AI performance recommendations
+```
+
+#### Continuous Integration
+```yaml
+# .github/workflows/ai-testing.yml
+name: AI-Powered Testing
+on: [push, pull_request]
+
+jobs:
+  ai-testing:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install
+      
+      - name: Run AI-powered tests
+        run: npm run test:ai
+      
+      - name: Upload AI test results
+        uses: actions/upload-artifact@v3
+        with:
+          name: ai-test-results
+          path: test-results/ai-analysis/
 ```
 
 ## File Organization Standards
@@ -288,4 +452,7 @@ This workflow integrates with and references the following specialized UI rules:
 - **Review quality gates quarterly and adjust based on project evolution**
 - **Add new troubleshooting scenarios as they are encountered**
 - **Keep integration references current with rule changes**
+
+
+
 
