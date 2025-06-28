@@ -123,3 +123,34 @@ mypy src tests
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## UI Development Worktree Workflow
+
+To isolate UI development, we use a Git worktree at `../ui-dev` on the `ui-development` branch. Scripts are provided in `scripts/` for convenience.
+
+### Setup (run from project root):
+
+**With Git Bash:**
+```sh
+bash scripts/create_worktree.sh
+```
+
+**With PowerShell:**
+```powershell
+./scripts/create_worktree.ps1
+```
+
+This will create a new worktree at `../ui-dev` checked out to the `ui-development` branch.
+
+### Switching to the worktree:
+- **Bash:** `bash scripts/switch_worktree.sh`
+- **PowerShell:** `./scripts/switch_worktree.ps1`
+
+### Updating the worktree:
+- **Bash:** `bash scripts/update_worktree.sh`
+- **PowerShell:** `./scripts/update_worktree.ps1`
+
+### Notes
+- The `ui-dev/` directory is ignored by git via `.gitignore`.
+- Use the worktree for all major UI development and experiments.
+- Merge changes back to main via pull requests as usual.

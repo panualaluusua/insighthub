@@ -67,3 +67,7 @@ node_modules/
 # OS specific
 .DS_Store
 archived_n8n
+
+# Added by Task Master AI
+# UI Development
+ui-dev/

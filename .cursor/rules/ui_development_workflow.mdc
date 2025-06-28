@@ -1,0 +1,131 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# UI Development Workflow with AI Tools (Tiered Approach)
+
+**This rule defines the optimal AI-driven development workflow for InsightHub frontend development using SvelteKit + TypeScript + TailwindCSS, starting with free tools and scaling up as needed.**
+
+## 🆓 **Tier 1: Free Foundation Workflow (Current)**
+
+### Core Free Tools
+- **Claude Designer**: Use existing Claude/Cursor for parallel UI generation
+- **Git Worktrees**: Free isolated development environments
+- **TailwindCSS**: Open source styling with design system
+- **SvelteKit**: Free framework with excellent performance
+- **Playwright**: Free automated testing
+- **Vitest**: Free unit testing
+
+### Phase 1: Foundation with Claude Designer
+- **Primary Tool**: Claude/Cursor for UI component generation
+- **Focus**: Create foundational screens using our established design system
+- **Method**: Single-agent approach initially, then parallel commands for variations
+
+### Phase 2: Parallel Iteration (Free Approach)
+- **Tool**: Git worktrees + multiple Cursor instances
+- **Process**: 
+  1. Create 3 worktrees for different UI approaches
+  2. Use `/iterate_design` command to generate variations
+  3. Compare and merge best elements
+- **Output**: 3-5 variations per component/screen
+
+### Phase 3: Integration & Testing
+- **Testing**: Playwright for automated E2E testing
+- **Integration**: Merge best variations into main branch
+- **Deployment**: Vercel free tier for staging
+
+## 🚀 **Tier 2: Enhanced Workflow (Future)**
+
+### When to Upgrade
+- **Trigger 1**: Team grows beyond 2 developers
+- **Trigger 2**: Need faster iteration cycles (>10 components/week)
+- **Trigger 3**: Client work requires premium design quality
+
+### Additional Tools
+- **V0ero Model** (~$10-30/month): For rapid UI foundation generation
+- **Superdesign Extension** (~$15/month): Enhanced visual iteration
+- **Advanced Claude API Credits**: For heavy parallel processing
+
+## 🏆 **Tier 3: Professional Workflow (Scale)**
+
+### When to Upgrade
+- **Trigger 1**: Production app with >1000 users
+- **Trigger 2**: Multiple client projects simultaneously
+- **Trigger 3**: Revenue justifies premium tools
+
+### Premium Tools
+- **21st.dev Component Library** (~$50/month): High-quality component enhancement
+- **Advanced Playwright Cloud**: Scaled testing infrastructure
+- **Professional Design Tools**: Figma plugins, advanced prototyping
+
+## Current Implementation (Tier 1)
+
+### DO / DON'T Examples
+```markdown
+# ✅ DO: Start with free Claude Designer parallel generation
+# ❌ DON'T: Jump to paid tools before validating workflow
+# ✅ DO: Use git worktrees for isolated UI experiments
+# ❌ DON'T: Work on main branch for UI iterations
+# ✅ DO: Create 3-5 variations before choosing final design
+# ❌ DON'T: Settle for first generated UI
+```
+
+### Free Workflow Commands
+
+#### `/iterate_design` (Free Version)
+1. Create 3 git worktrees
+2. Generate 3 UI variations using Claude
+3. Use TailwindCSS design system consistently
+4. Compare results side-by-side
+5. Merge best elements
+
+#### `/extract_design_system` (Free Version)
+1. Analyze existing UI screenshots
+2. Extract color palette manually
+3. Document spacing and typography
+4. Create TailwindCSS config
+5. Save as design-system.json
+
+### Component Development Process
+1. **Research**: Study existing patterns and best practices
+2. **Sketch**: Create simple wireframes or descriptions
+3. **Generate**: Use Claude to create 3 variations
+4. **Test**: Quick manual testing in browser
+5. **Refine**: Iterate based on feedback
+6. **Document**: Add to component library
+
+### Quality Metrics (Free Tier)
+- **Performance**: <50KB bundle size per page
+- **Accessibility**: WCAG 2.1 AA compliance
+- **Mobile**: Responsive design required
+- **Testing**: >80% component test coverage
+
+## Migration Path
+
+### Tier 1 → Tier 2 Migration
+1. Validate workflow effectiveness (measure iteration speed)
+2. Identify bottlenecks in current process
+3. Calculate ROI of paid tools
+4. Implement one paid tool at a time
+5. Measure improvement metrics
+
+### Success Metrics for Upgrade Decision
+- **Speed**: UI iteration time <2 hours per component
+- **Quality**: Zero accessibility issues
+- **Consistency**: 100% design system compliance
+- **Testing**: Automated visual regression testing
+
+---
+
+## See also
+- [memory_bank_taskmaster.mdc](mdc:memory_bank_taskmaster.mdc)
+- [python_development.mdc](mdc:python_development.mdc)
+
+---
+
+## Maintenance Notes
+- **Review tier progression monthly**
+- **Track workflow efficiency metrics**
+- **Update tool costs and capabilities quarterly**
+

@@ -41,9 +41,9 @@ supabase = "^2.3.0"
 langchain = "^0.2.5"
 langchain-anthropic = "^0.1.15"
 langchain-community = "^0.2.5"
-youtube-transcript-api = "^0.6.2"
-pytube = "^15.0.0"
 requests = ">=2.31.0"
+yt-dlp = ">=2024.7.25"
+faster-whisper = ">=1.0.3"
 google-api-python-client = {version = ">=2.173.0,<3.0.0", optional = true}
 
 [tool.poetry.group.dev.dependencies]
