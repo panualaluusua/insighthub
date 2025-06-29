@@ -17,7 +17,7 @@ class SupabaseClient:
     def _get_client(self) -> Optional[Client]:
         """Get or create a Supabase client instance."""
         url = os.getenv("SUPABASE_URL")
-        key = os.getenv("SUPABASE_KEY")
+        key = os.getenv("SUPABASE_ANON_KEY")
         
         if not url or not key:
             return None

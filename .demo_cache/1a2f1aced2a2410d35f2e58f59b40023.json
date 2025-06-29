@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-29T08:33:06.209358",
+  "content": {
+    "raw_content": "Transcript content from https://youtube.com/watch?v=video1",
+    "content_id": "watch?v=video1",
+    "metadata": {
+      "duration": 300,
+      "language": "en"
+    }
+  },
+  "type": "youtube",
+  "url": "https://youtube.com/watch?v=video1",
+  "params": {}
+}

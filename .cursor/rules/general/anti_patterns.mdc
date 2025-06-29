@@ -1,0 +1,62 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# Anti-Patterns to Avoid
+
+> **Note:** Mutation, deep nesting, and large functions are not just anti-patterns, but violations of our core functional programming and TDD discipline. See [dev_workflow.mdc](mdc:general/dev_workflow.mdc), [tdd_testing.mdc](mdc:python/tdd_testing.mdc), and [immutability_functional.mdc](mdc:general/immutability_functional.mdc).
+
+- **Mutation of arguments or global state**
+- **Deeply nested conditionals**
+- **Large, monolithic functions**
+- **Duplicating business logic**
+
+## Examples
+
+```python
+# Avoid: Mutating arguments
+def add_item(items, item):
+    items.append(item)  # BAD: mutates input
+    return items
+
+# Prefer: Immutable update
+def add_item(items, item):
+    return items + [item]
+
+# Avoid: Deep nesting
+if user:
+    if user.is_active:
+        if user.has_permission:
+            do_something()
+
+# Prefer: Early returns
+if not user or not user.is_active or not user.has_permission:
+    return
+
+do_something()
+
+# Avoid: Large functions
+def process_order(order):
+    # 100+ lines of code
+    pass
+
+# Prefer: Composed small functions
+def process_order(order):
+    validated = validate_order(order)
+    priced = calculate_pricing(validated)
+    final = apply_discounts(priced)
+    return submit_order(final)
+```
+
+---
+
+## See also
+- [python_development.mdc](mdc:python/python_development.mdc)
+- [tdd_testing.mdc](mdc:python/tdd_testing.mdc)
+- [immutability_functional.mdc](mdc:general/immutability_functional.mdc)
+
+
+
+
+

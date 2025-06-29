@@ -124,11 +124,15 @@ mypy src tests
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## UI Development Worktree Workflow
+## Git Worktree Workflows
 
-To isolate UI development, we use a Git worktree at `../ui-dev` on the `ui-development` branch. Scripts are provided in `scripts/` for convenience.
+This project utilizes Git worktrees to facilitate parallel development and isolated environments. We have two primary worktree workflows:
 
-### Setup (run from project root):
+### UI Development Worktree Workflow
+
+To isolate UI development, we use a dedicated Git worktree at `../ui-dev` on the `ui-development` branch. Scripts are provided in `scripts/` for convenience.
+
+#### Setup (run from project root):
 
 **With Git Bash:**
 ```sh
@@ -142,15 +146,25 @@ bash scripts/create_worktree.sh
 
 This will create a new worktree at `../ui-dev` checked out to the `ui-development` branch.
 
-### Switching to the worktree:
+#### Switching to the worktree:
 - **Bash:** `bash scripts/switch_worktree.sh`
 - **PowerShell:** `./scripts/switch_worktree.ps1`
 
-### Updating the worktree:
+#### Updating the worktree:
 - **Bash:** `bash scripts/update_worktree.sh`
 - **PowerShell:** `./scripts/update_worktree.ps1`
 
-### Notes
+#### Notes
 - The `ui-dev/` directory is ignored by git via `.gitignore`.
 - Use the worktree for all major UI development and experiments.
 - Merge changes back to main via pull requests as usual.
+
+### Dual-Agent Workflow
+
+For general-purpose parallel development, such as running a secondary AI agent (like Gemini CLI for documentation) or working on a separate feature/bugfix without affecting your primary development environment, we use a more generic dual-agent worktree workflow.
+
+This workflow allows you to create worktrees for any branch in a dedicated parent directory, preventing context switching and keeping tasks isolated.
+
+For a detailed guide on setting up and using the Dual-Agent Workflow, including best practices and step-by-step instructions, please refer to:
+
+- [`.cursor/rules/dual-agent-workflow.mdc`](.cursor/rules/dual-agent-workflow.mdc)

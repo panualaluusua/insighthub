@@ -1,0 +1,74 @@
+[
+  {
+    "workflow_id": "d36df25f-98ce-4591-9b1d-fa3e1a671fff",
+    "start_time": "2025-06-29T07:57:49.671967",
+    "end_time": "2025-06-29T07:57:56.978447",
+    "duration": 7.30648,
+    "status": "success",
+    "content_type": "youtube",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  },
+  {
+    "workflow_id": "0edeec01-6e64-4c4a-b6e5-deed53a04d96",
+    "start_time": "2025-06-29T07:57:57.979630",
+    "end_time": "2025-06-29T07:58:04.786940",
+    "duration": 6.80731,
+    "status": "success",
+    "content_type": "reddit",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  },
+  {
+    "workflow_id": "0a6b46bb-44a1-42d3-80f5-98f244b8ea49",
+    "start_time": "2025-06-29T07:58:05.788181",
+    "end_time": "2025-06-29T07:58:13.095515",
+    "duration": 7.307334,
+    "status": "success",
+    "content_type": "youtube",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  },
+  {
+    "workflow_id": "20420893-b637-4e5a-9cc4-3830ca789b49",
+    "start_time": "2025-06-29T08:13:00.879333",
+    "end_time": "2025-06-29T08:13:08.186466",
+    "duration": 7.307133,
+    "status": "success",
+    "content_type": "youtube",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  },
+  {
+    "workflow_id": "e6e6d793-88bb-493e-a410-29ac3005a9a7",
+    "start_time": "2025-06-29T08:13:09.188251",
+    "end_time": "2025-06-29T08:13:15.997743",
+    "duration": 6.809492,
+    "status": "success",
+    "content_type": "reddit",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  },
+  {
+    "workflow_id": "c728ff3f-e72e-4552-a1e9-e6fc61db62c4",
+    "start_time": "2025-06-29T08:13:16.999414",
+    "end_time": "2025-06-29T08:13:24.306424",
+    "duration": 7.30701,
+    "status": "success",
+    "content_type": "youtube",
+    "nodes": [],
+    "total_tokens": 0,
+    "total_cost": 0.0,
+    "error_message": null
+  }
+]

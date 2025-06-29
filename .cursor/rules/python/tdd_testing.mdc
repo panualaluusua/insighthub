@@ -1,0 +1,73 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# TDD & Testing Rules
+
+**This rule enforces TDD and behavior-driven testing for all Python code.**
+
+## Key Principles
+- **TDD is non-negotiable:** Write a failing test before any production code. Use the Red-Green-Refactor cycle.
+- **Behavior-driven testing:** Test public APIs, not internals. Focus on business behavior, not implementation details.
+- **100% coverage for business logic:** Strive for full coverage, but only for meaningful behaviors.
+- **Test data factories:** Use `factory_boy` or pytest fixtures for generating test data. Factories should use real schemas/models, not redefined types.
+- **Schema usage in tests:** Import and use real schemas (e.g., Pydantic models) in tests.
+
+---
+
+## TDD Workflow (Red-Green-Refactor)
+1. **Red:** Write a failing test for the desired behavior. No production code until you have a failing test.
+2. **Green:** Write the minimal code to make the test pass. Do not write more than needed.
+3. **Refactor:** Assess the code for improvement opportunities. Refactor only if it adds value, keeping all tests green.
+4. **Repeat:** For each new behavior, repeat the cycle.
+
+### Refactoring & Commit Discipline
+- Always commit working code before starting any refactoring.
+- Refactor only for value (clarity, duplication of knowledge, structure).
+- After refactoring, run all tests and static analysis (mypy, ruff, etc). Only commit if all pass.
+- Use conventional commit messages (e.g., `feat:`, `fix:`, `refactor:`, `test:`).
+- Each commit should represent a complete, working change.
+
+---
+
+### DO / DON'T Examples
+```python
+# ✅ DO: Write a failing test first
+def test_add():
+    assert add(2, 2) == 5  # Fails initially
+
+# ❌ DON'T: Write code before tests
+def add(a, b):
+    return a + b
+
+# ✅ DO: Test through public API
+response = client.get('/users/1')
+assert response.status_code == 200
+
+# ❌ DON'T: Test internals directly
+assert user._private_method() == ...
+```
+
+---
+
+## See also
+- [dev_workflow.mdc](mdc:general/dev_workflow.mdc)
+- [anti_patterns.mdc](mdc:general/anti_patterns.mdc)
+- [immutability_functional.mdc](mdc:general/immutability_functional.mdc)
+- [type_schema_style.mdc](mdc:general/type_schema_style.mdc)
+
+---
+
+## Maintenance Notes
+- **Update this rule as new testing tools or patterns are adopted.**
+- **Add new DO/DON'T examples as new testing anti-patterns are discovered.**
+- **Cross-reference new or updated rules as needed.**
+
+
+
+
+
+
+
+
