@@ -1,0 +1,4 @@
+import os
+
+TRANSCRIPTION_METHOD = os.getenv("TRANSCRIPTION_METHOD", "local")
+AUDIO_SPEED_FACTOR = float(os.getenv("AUDIO_SPEED_FACTOR", 2.0))

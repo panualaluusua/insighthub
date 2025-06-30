@@ -33,6 +33,8 @@ class NodeMetrics:
     input_size: Optional[int] = None
     output_size: Optional[int] = None
     error_message: Optional[str] = None
+    total_tokens: int = 0
+    total_cost: float = 0.0
     metadata: Dict[str, Any] = None
     
     def __post_init__(self):
@@ -216,13 +218,15 @@ class LocalMonitoringDashboard:
     
     def complete_node(self, execution_id: str, status: str = "success", 
                      output_size: Optional[int] = None, error_message: Optional[str] = None,
-                     metadata: Dict[str, Any] = None):
+                     metadata: Dict[str, Any] = None, total_tokens: int = 0, total_cost: float = 0.0):
         """Complete monitoring of a node execution."""
         if execution_id in self.active_nodes:
             node = self.active_nodes[execution_id]
             node.complete(status=status, error_message=error_message, metadata=metadata)
             if output_size:
                 node.output_size = output_size
+            node.total_tokens = total_tokens
+            node.total_cost = total_cost
             
             logger.debug(f"Completed monitoring node {node.node_name} ({execution_id}): {status} in {node.duration:.2f}s")
             del self.active_nodes[execution_id]
@@ -430,9 +434,39 @@ def monitor_workflow(content_type: str = "unknown"):
         return wrapper
     return decorator
 
+class CostTracker:
+    """
+    Tracks the cost and token usage for API calls.
+    """
+    def __init__(self):
+        self.total_cost = 0.0
+        self.total_tokens = 0
+
+    def log_transcription(self, duration: float, method: str, tokens: int = 0):
+        """
+        Logs transcription details and updates total cost/tokens.
+        Assuming $0.006 per minute for OpenAI Whisper API.
+        """
+        self.total_tokens += tokens
+        if method == "openai":
+            self.total_cost += (duration / 60) * 0.006
+
+def log_performance(func: Callable):
+    """Decorator to log the execution time of a function."""
+    def wrapper(*args, **kwargs):
+        logger.info(f"Starting {func.__name__}...")
+        start_time = time.time()
+        result = func(*args, **kwargs)
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.info(f"Finished {func.__name__} in {duration:.4f} seconds.")
+        return result
+    return wrapper
+
 if __name__ == "__main__":
     # Demo/test functionality
     dashboard = LocalMonitoringDashboard()
+    cost_tracker = CostTracker()
     
     # Simulate some workflows
     for i in range(5):
@@ -443,7 +477,7 @@ if __name__ == "__main__":
         for node in nodes:
             execution_id = dashboard.start_node(workflow_id, node)
             time.sleep(0.1)  # Simulate work
-            dashboard.complete_node(execution_id, status="success")
+            dashboard.complete_node(execution_id, status="success", total_tokens=100, total_cost=0.001)
         
         dashboard.complete_workflow(workflow_id, status="success", total_tokens=1500, total_cost=0.05)
     

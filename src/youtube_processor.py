@@ -4,6 +4,8 @@ import yt_dlp
 import tempfile
 import faster_whisper
 import os
+import subprocess
+from src.config import TRANSCRIPTION_METHOD, AUDIO_SPEED_FACTOR
 
 class YouTubeProcessor:
     """
@@ -65,7 +67,7 @@ class YouTubeProcessor:
         except Exception as e:
             raise ValueError(f"Failed to download audio: {e}")
 
-    def transcribe_audio(self, audio_path: str, model_size: str = "tiny") -> str:
+    def transcribe_audio_local(self, audio_path: str, model_size: str = "tiny") -> str:
         """
         Transcribes an audio file using faster-whisper.
 
@@ -87,7 +89,62 @@ class YouTubeProcessor:
             full_transcript = "".join([segment.text for segment in segments])
             return full_transcript.strip()
         except Exception as e:
-            raise ValueError(f"Failed to transcribe audio: {e}")
+            raise ValueError(f"Failed to transcribe audio with faster-whisper: {e}")
+
+    def transcribe_audio_openai(self, audio_path: str) -> str:
+        """
+        Transcribes an audio file using OpenAI Whisper API.
+
+        Args:
+            audio_path: The path to the audio file.
+
+        Returns:
+            The full transcribed text as a single string.
+
+        Raises:
+            ValueError: If transcription fails or API key is missing.
+        """
+        from openai import OpenAI
+
+        api_key = os.getenv("OPENAI_API_KEY")
+        if not api_key:
+            raise ValueError("OPENAI_API_KEY environment variable not set.")
+
+        client = OpenAI(api_key=api_key)
+        try:
+            with open(audio_path, "rb") as audio_file:
+                transcript = client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio_file
+                )
+            return transcript.text
+        except Exception as e:
+            raise ValueError(f"Failed to transcribe audio with OpenAI Whisper API: {e}")
+
+    def speed_up_audio(self, input_file: str, output_file: str, speed_factor: float = 2.0):
+        """
+        Speeds up an audio file using ffmpeg.
+
+        Args:
+            input_file: Path to the input audio file.
+            output_file: Path for the sped-up output audio file.
+            speed_factor: Factor by which to speed up the audio (e.g., 2.0 for double speed).
+        
+        Raises:
+            ValueError: If ffmpeg command fails.
+        """
+        cmd = [
+            'ffmpeg', '-i', input_file,
+            '-filter:a', f'atempo={speed_factor}',
+            '-c:a', 'aac', '-b:a', '192k',
+            output_file
+        ]
+        try:
+            subprocess.run(cmd, check=True, capture_output=True, text=True)
+        except subprocess.CalledProcessError as e:
+            raise ValueError(f"ffmpeg failed: {e.stderr}")
+        except FileNotFoundError:
+            raise ValueError("ffmpeg not found. Please ensure ffmpeg is installed and in your PATH.")
 
     def get_video_id(self, url: str) -> str | None:
         """
@@ -108,7 +165,7 @@ class YouTubeProcessor:
         
         return None
 
-    def get_transcript(self, url: str, model_size: str = "tiny") -> str:
+    def get_transcript(self, url: str, model_size: str = "tiny", speed_up: bool = False) -> str:
         """
         Fetches the transcript for a given YouTube URL by downloading the audio
         and transcribing it locally.
@@ -124,18 +181,34 @@ class YouTubeProcessor:
             ValueError: If the URL is invalid or transcription fails.
         """
         audio_path = None
+        sped_up_audio_path = None
         try:
             # Download audio
             audio_path = self.download_audio(url)
             
+            if speed_up:
+                # Speed up the audio if requested
+                import uuid
+                temp_dir = tempfile.gettempdir()
+                sped_up_audio_path = os.path.join(temp_dir, f"sped_up_youtube_audio_{uuid.uuid4().hex[:8]}.m4a")
+                self.speed_up_audio(audio_path, sped_up_audio_path)
+                audio_to_transcribe = sped_up_audio_path
+            else:
+                audio_to_transcribe = audio_path
+
             # Transcribe audio
-            transcript = self.transcribe_audio(audio_path, model_size=model_size)
+            if TRANSCRIPTION_METHOD == "openai":
+                transcript = self.transcribe_audio_openai(audio_to_transcribe)
+            else:
+                transcript = self.transcribe_audio_local(audio_to_transcribe, model_size=model_size)
             
             return transcript
         except Exception as e:
             # Re-raise exceptions from download/transcription as a ValueError
             raise ValueError(f"Failed to get transcript: {e}")
         finally:
-            # Clean up the temporary audio file
+            # Clean up the temporary audio files
             if audio_path and os.path.exists(audio_path):
                 os.remove(audio_path)
+            if sped_up_audio_path and os.path.exists(sped_up_audio_path):
+                os.remove(sped_up_audio_path)
