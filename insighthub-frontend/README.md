@@ -1,5 +1,11 @@
 # InsightHub Frontend
 
+> **UI Documentation:**
+> - [UI Documentation Index](../docs/frontend/UI_DOCUMENTATION.md)
+> - [Component Guidelines](COMPONENT_GUIDELINES.md)
+>
+> **Note:** All contributors must follow UI documentation standards for new or changed components. See the UI Documentation Index for details.
+
 A modern content feed application built with SvelteKit, TypeScript, and TailwindCSS featuring cutting-edge **AI-powered testing capabilities**.
 
 ## Features

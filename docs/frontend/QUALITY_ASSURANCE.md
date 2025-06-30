@@ -1,5 +1,11 @@
 # 🎯 Frontend Quality Assurance Infrastructure
 
+> **Cross-References:**
+> - [UI Documentation Index](UI_DOCUMENTATION.md)
+> - [Component Guidelines](../../insighthub-frontend/COMPONENT_GUIDELINES.md)
+>
+> **Note:** UI documentation is required for all new or changed components. See the UI Documentation Index for details.
+
 > **Location**: `docs/frontend/QUALITY_ASSURANCE.md`  
 > **Status**: Production Ready  
 > **Last Updated**: 2024-12-29  

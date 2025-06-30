@@ -1,5 +1,11 @@
 # 🎯 Quality Assurance Processes
 
+> **Cross-References:**
+> - [UI Documentation Index](../docs/frontend/UI_DOCUMENTATION.md)
+> - [Component Guidelines](COMPONENT_GUIDELINES.md)
+>
+> **Note:** UI documentation is required for all new or changed components. See the UI Documentation Index for details.
+
 This document outlines the comprehensive quality assurance processes implemented for InsightHub Frontend, ensuring high code quality, security, performance, and accessibility standards.
 
 ## 📋 Overview

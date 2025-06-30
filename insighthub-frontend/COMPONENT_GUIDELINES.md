@@ -1,5 +1,12 @@
 # InsightHub Component Library Guidelines
 
+> **Cross-References:**
+> - [UI Documentation Index](../docs/frontend/UI_DOCUMENTATION.md)
+> - [UI Development Workflow](../../.cursor/rules/ui/ui_development_workflow.mdc)
+> - [Frontend QA Processes](QA_PROCESSES.md)
+>
+> **Note:** All new or changed UI components must be documented here (or in a new doc) and the documentation must be linked from the relevant Taskmaster task.
+
 ## Overview
 
 This document outlines the standards and best practices for developing components in the InsightHub component library.

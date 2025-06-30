@@ -112,6 +112,12 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
   task-master list --status=done
   ```
 
+- **Link Documentation to Task**: After creating or updating documentation, add a reference (file path or markdown link) to the relevant documentation in the Taskmaster task's `details`, `comments`, or a dedicated `docs` field. This ensures future readers can easily find the implementation details.
+  ```bash
+  # Example: Update the task with a documentation link
+  task-master update-task --id=<task-id> --prompt="See [PERFORMANCE_VISUAL_TESTING.md](mdc:docs/frontend/PERFORMANCE_VISUAL_TESTING.md) for full implementation details."
+  ```
+
 ---
 
 ## **Taskmaster Integration Guidelines**
@@ -197,6 +203,39 @@ task-master update-subtask --id=35.7 --prompt="QA infrastructure complete"
 # ❌ DON'T: Mark task complete without documentation
 task-master set-status --id=35.7 --status=done
 # Without creating proper documentation in docs/ folder
+```
+
+---
+
+## 🤖 AI-Powered Testing & Research Requirements
+
+### Hybrid Requirement Policy
+
+- **Mandatory:** For all major features, UI/UX changes, and releases:
+  - Run all AI-powered Playwright and bug detection tests (e.g., `npm run test:ai`, `npm run analyze:ai`).
+  - Review and address all AI-generated issues before merging.
+  - Perform AI-powered research for new technologies, libraries, or complex features.
+  - Link AI test results and research findings to the relevant Taskmaster task (in `details`, `comments`, or a `docs` field).
+  - Do not mark the task as "done" until these steps are complete.
+
+- **Recommended:** For minor bugfixes, prototypes, or WIP branches:
+  - AI-powered steps are encouraged but not strictly required.
+
+### Example Checklist (add to PRs or Taskmaster tasks)
+
+- [ ] AI-powered Playwright/bug detection tests run and passed
+- [ ] AI research performed for new tech/complex features
+- [ ] AI test results/research linked to Taskmaster task
+
+### Example Workflow Step
+
+```bash
+# Run AI-powered tests
+npm run test:ai
+npm run analyze:ai
+
+# Link results to Taskmaster
+# task-master update-task --id=<task-id> --prompt="See [AI test report](mdc:path/to/report) for details."
 ```
 
 ---
