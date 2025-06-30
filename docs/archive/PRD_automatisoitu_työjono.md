@@ -8,9 +8,10 @@ Tavoitteena on rakentaa järjestelmä, joka automatisoi uusien tietolähteiden (
 
 #### 2.x Sisällön täydellinen lataus LLM-arviointia varten
 - Reddit-postauksista haetaan koko tekstisisältö (otsikko, selftext, mahdolliset kommentit tarpeen mukaan).
-- YouTube-videoista haetaan metadatan lisäksi myös transkripti (tekstitys), mikäli se on saatavilla.
-    - Tekstitys voidaan hakea, jos videoon on ladattu tekstitykset tai automaattiset tekstitykset ovat käytössä.
-    - Jos tekstitystä ei ole saatavilla, LLM-arviointi rajoittuu metatietoihin (otsikko, kuvaus).
+    - YouTube-videoista haetaan metadatan lisäksi myös transkripti (tekstitys). Nyt käytössä on kaksi transkriptiomenetelmää:
+        - **OpenAI Whisper API:** Ensisijainen ja suositeltu menetelmä korkealaatuisten transkriptioiden saamiseksi. Äänitiedostoja esikäsitellään FFmpegillä nopeuttamalla niitä, mikä vähentää transkriptioon kuluvaa aikaa ja API-kustannuksia.
+        - **Faster-Whisper (paikallinen):** Vararatkaisuna tai paikalliseen käyttöön, jos OpenAI API ei ole käytettävissä tai halutaan välttää API-kustannuksia.
+        - Jos transkriptiota ei voida tuottaa kummallakaan menetelmällä, LLM-arviointi rajoittuu metatietoihin (otsikko, kuvaus).
 - Tämä mahdollistaa sisällön syvällisen arvioinnin kielimallilla, eikä pelkän metadatan perusteella.
 #### 2.1 Sisällön keruu
 - Järjestelmä hakee suuren määrän uusia sisältöjä useista lähteistä (esim. uutis- ja videosivustot, tieteelliset julkaisut, some).

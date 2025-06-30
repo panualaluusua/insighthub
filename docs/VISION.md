@@ -16,6 +16,7 @@ InsightHubin nykyiset toiminnot:
     - Käyttäjä voi syöttää kanavien nimet ja halutun videomäärän.
     - Sovellus hakee uusimmat videot jokaiselta kanavalta (otsikko, linkki, kanavan nimi).
     - Videot näytetään listana ja niiden URL:t voi kopioida yhdellä napilla.
+    - **Optimoidut transkriptiomenetelmät:** Integroitu OpenAI Whisper API ja FFmpeg-esikäsittely videoiden transkriptioon, mikä parantaa tarkkuutta ja tehokkuutta.
 
 - **UI ja käyttökokemus:**
     - Streamlit-pohjainen käyttöliittymä, jossa on selkeät syötekentät ja valinnat.

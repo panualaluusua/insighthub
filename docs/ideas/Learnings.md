@@ -33,7 +33,8 @@
 ## 7. Yleisiä oppeja
 - Ketterä kehitys ja iterointi: nopea prototypointi ja jatkuva parantaminen toimii parhaiten.
 - Hyvä rakenne (src/, docs/, testit, ympäristömuuttujat) tekee projektista helposti ylläpidettävän.
-- Dokumentointi ja näkyvä kehityshistoria auttavat sekä nykyistä että tulevaa kehitystä.
+- Dokumentointi ja näkyvä kehityshistoria auttavat sekä omaa että muiden ymmärrystä projektista.
+- **YouTube-transkription optimointi:** OpenAI Whisper API:n ja FFmpeg-esikäsittelyn integrointi parantaa merkittävästi transkription laatua, nopeutta ja kustannustehokkuutta. Tämä osoittaa ulkoisten API-palveluiden ja tehokkaiden esikäsittelytyökalujen hyödyntämisen tärkeyden.
 
 <<<<<<< HEAD
 =======

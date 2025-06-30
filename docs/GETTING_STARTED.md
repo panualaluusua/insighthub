@@ -23,10 +23,13 @@ This guide will walk you through setting up the complete development environment
 
 3.  **Set up environment variables:**
     
-    You will need to set the `YOUTUBE_API` environment variable. You can do this by creating a `.env` file in the root of the project and adding the following line:
+    You will need to set the following environment variables. You can do this by creating a `.env` file in the root of the project and adding the following lines:
     
     ```
     YOUTUBE_API=your_youtube_api_key
+    OPENAI_API_KEY=your_openai_api_key
+    TRANSCRIPTION_METHOD=openai # or 'local' for faster-whisper
+    AUDIO_SPEED_FACTOR=2.0 # Optional: Factor to speed up audio for transcription
     ```
 
 4.  **Run the backend server:**

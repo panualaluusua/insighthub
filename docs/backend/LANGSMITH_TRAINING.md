@@ -417,7 +417,9 @@ def operation_with_custom_metrics(data):
             execution_id=execution_id,
             status="success",
             output_size=len(str(result)),
-            metadata={"custom_metric": duration}
+            metadata={"custom_metric": duration},
+            total_tokens=100, # Example value, replace with actual token count
+            total_cost=0.001 # Example value, replace with actual cost
         )
         
         # Return with LangSmith metadata

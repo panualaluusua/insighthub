@@ -24,8 +24,14 @@ Projektin ensimmäisessä vaiheessa toteutin Python-skriptin, joka hyödyntää 
 ### 2. Lähteiden syöttö ja automaatio
 Alkuvaiheessa lähteiden syöttö Google Notebook LM -sovellukseen automatisoitiin Seleniumilla. Prosessi osoittautui kuitenkin hitaaksi ja virheherkäksi, joten ratkaisuksi löytyi Chrome-lisäosa, johon voi syöttää url-listan ja joka lisää lähteet Notebook LM:ään kerralla.
 
-### 3. Podcast-muotoiset tiivistelmät
-InsightHubin ytimessä on kyky muuntaa kerätty tieto helposti kuunneltavaan muotoon. NotebookLM:n "Audio Overview" -ominaisuutta personoitiin ohjaavilla kehotteilla (promptit), esimerkiksi kolmiosaisella rakenteella: määritelmä, sovellukset ja tulevaisuus. Tämä toi podcast-koosteisiin vaihtelua ja syvyyttä.
+### 3. Podcast-muotoiset tiivistelmät ja transkriptio
+InsightHubin ytimessä on kyky muuntaa kerätty tieto helposti kuunneltavaan muotoon. Alun perin hyödynnettiin NotebookLM:n "Audio Overview" -ominaisuutta, mutta nyt transkriptioprosessia on optimoitu merkittävästi.
+
+#### Optimoidut transkriptiomenetelmät:
+- **OpenAI Whisper API -integraatio:** Videoiden ja äänitiedostojen transkriptioon käytetään nyt OpenAI:n Whisper API:a, joka tarjoaa korkealaatuisia ja tarkkoja transkriptioita. Tämä parantaa merkittävästi sisällön käsittelyn luotettavuutta ja nopeutta.
+- **FFmpeg-esikäsittely:** Transkription tehokkuuden ja kustannustehokkuuden parantamiseksi äänitiedostoja esikäsitellään FFmpegillä nopeuttamalla niitä. Tämä vähentää transkriptioon kuluvaa aikaa ja API-kustannuksia, erityisesti pitkien videoiden kohdalla.
+
+Podcast-koosteita personoidaan edelleen ohjaavilla kehotteilla (promptit), esimerkiksi kolmiosaisella rakenteella: määritelmä, sovellukset ja tulevaisuus. Tämä tuo podcast-koosteisiin vaihtelua ja syvyyttä.
 
 #### Esimerkkikehote:
 > Break the podcast into three parts: [Part 1 definition], [Part 2 applications], [Part 3 future]

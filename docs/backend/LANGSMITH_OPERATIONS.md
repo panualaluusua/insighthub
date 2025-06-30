@@ -34,6 +34,10 @@ ALERT_THRESHOLDS = {
     "cost_per_hour": {
         "warning": 10.0,    # $10/hour
         "critical": 25.0    # $25/hour
+    },
+    "total_tokens_per_hour": {
+        "warning": 100000,  # 100k tokens/hour
+        "critical": 500000  # 500k tokens/hour
     }
 }
 
