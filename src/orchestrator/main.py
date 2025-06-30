@@ -7,6 +7,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import List, Optional, Callable, Any, Dict
+from src.orchestrator.monitoring import monitor_workflow, monitor_node
 from threading import Lock
 from enum import Enum
 
@@ -299,6 +300,7 @@ class Orchestrator:
         """Get circuit breaker for a service."""
         return self.circuit_breakers.get(service_name)
     
+    @monitor_node(node_name="process_content")
     def process_content(self, content_state: ContentState) -> ContentState:
         """
         Process a single content item through the orchestrator graph with error handling.
@@ -390,10 +392,12 @@ class Orchestrator:
         
         return failed_state
     
+    @monitor_workflow(content_type="batch_processing")
     def process_batch(
         self, 
         content_list: List[ContentState],
-        progress_callback: Optional[Callable[[ProcessingProgress], None]] = None
+        progress_callback: Optional[Callable[[ProcessingProgress], None]] = None,
+        workflow_id: Optional[str] = None # Added for monitoring
     ) -> List[ContentState]:
         """
         Process multiple content items in batch with optional progress tracking.

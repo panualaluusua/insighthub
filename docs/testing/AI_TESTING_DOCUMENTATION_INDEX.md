@@ -33,7 +33,10 @@ This index provides access to all documentation for our cutting-edge **AI-powere
 | Document | Description | Content |
 |----------|-------------|---------|
 | [AI-TESTING.md](../insighthub-frontend/AI-TESTING.md) | Technical deep dive | API examples, configuration, best practices |
+| [PERFORMANCE_VISUAL_TESTING.md](../frontend/PERFORMANCE_VISUAL_TESTING.md) | **Performance & Visual Testing** | Core Web Vitals, Bundle Analysis, Visual Regression |
+| [TESTING_GUIDE.md](../frontend/TESTING_GUIDE.md) | Complete testing infrastructure | Unit, E2E, Performance, Visual testing |
 | [TESTING.md](../TESTING.md) | Traditional + AI testing | Unit, E2E, and AI testing strategies |
+| [QUALITY_ASSURANCE.md](../frontend/QUALITY_ASSURANCE.md) | QA infrastructure | Quality gates, automation, monitoring |
 | [Workflow Rules](../.cursor/rules/) | Development workflow | AI testing integration in development |
 
 ### 📊 Results and Analysis
@@ -41,6 +44,8 @@ This index provides access to all documentation for our cutting-edge **AI-powere
 |----------|-------------|-------|
 | [AI Test Results](../insighthub-frontend/AI-TESTING.md#ai-test-results) | Understanding AI outputs | Screenshot analysis, bug reports |
 | [Performance Analysis](../insighthub-frontend/AI-TESTING.md#ai-performance-monitoring) | AI performance insights | Core Web Vitals, optimization |
+| [Performance Monitoring](../frontend/PERFORMANCE_VISUAL_TESTING.md) | **Enterprise Performance Testing** | Memory tracking, bundle analysis, Lighthouse CI |
+| [Visual Regression Analysis](../frontend/PERFORMANCE_VISUAL_TESTING.md) | **5-Viewport Visual Testing** | Form states, theme consistency, responsive design |
 | [Accessibility Reports](../insighthub-frontend/AI-TESTING.md#ai-accessibility-analysis) | AI accessibility findings | WCAG compliance, improvements |
 
 ## 🚀 Getting Started Path
@@ -107,6 +112,26 @@ npm run analyze:ai
 npx playwright show-report
 ```
 
+### Performance & Visual Testing Commands
+```bash
+# Performance monitoring tests
+npm run test:performance
+npm run test:performance:headed
+
+# Visual regression testing
+npm run test:visual
+npm run test:visual:update
+npm run test:visual:headed
+
+# Lighthouse CI performance audits
+npm run lighthouse
+npm run lighthouse:ci
+
+# Combined quality testing
+npm run qa:audit
+npm run qa:dashboard
+```
+
 ### Cursor IDE Integration
 ```bash
 # Comprehensive AI analysis (use in Cursor)
@@ -119,12 +144,19 @@ npx playwright show-report
 insight_hub/
 ├── docs/
 │   ├── AI_TESTING_DOCUMENTATION_INDEX.md    # 👈 This file
+│   ├── frontend/
+│   │   ├── PERFORMANCE_VISUAL_TESTING.md     # 🚀 Performance & Visual Testing Guide
+│   │   ├── TESTING_GUIDE.md                  # 📋 Complete Testing Infrastructure
+│   │   └── QUALITY_ASSURANCE.md              # 🎯 QA Infrastructure
 │   └── ...
 ├── insighthub-frontend/
 │   ├── AI-TESTING.md                         # 🤖 Complete AI testing guide
 │   ├── README.md                             # 📖 Frontend overview (includes AI)
+│   ├── lighthouserc.json                     # ⚡ Enhanced Lighthouse CI config
 │   ├── tests/
 │   │   ├── ai-powered-visual.spec.ts         # 🧪 AI testing suite
+│   │   ├── performance-monitoring.spec.ts    # 📊 Core Web Vitals & Performance
+│   │   ├── visual-regression.spec.ts         # 🎨 5-Viewport Visual Testing
 │   │   ├── accessibility.spec.ts             # ♿ Accessibility tests
 │   │   └── ...
 │   ├── scripts/

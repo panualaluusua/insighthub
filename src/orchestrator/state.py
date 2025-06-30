@@ -24,6 +24,7 @@ class ContentState(TypedDict):
     processed_content: Optional[str]  # Cleaned/formatted content
     summary: Optional[str]  # AI-generated summary
     embeddings: Optional[List[float]]  # Vector embeddings
+    relevance_score: Optional[float]  # Content relevance score (0.0-1.0)
     
     # Processing state
     status: Literal["pending", "processing", "completed", "failed"]
@@ -137,6 +138,7 @@ def create_content_state(
         processed_content=None,
         summary=None,
         embeddings=None,
+        relevance_score=None,
         status="pending",
         current_node=None,
         error_message=None,

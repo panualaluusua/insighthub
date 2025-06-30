@@ -1,0 +1,95 @@
+{
+  "name": "InsightHub Frontend Quality Gate",
+  "description": "Comprehensive quality gate for InsightHub frontend application",
+  "conditions": {
+    "coverage": {
+      "operator": "LT",
+      "threshold": "80.0",
+      "metric": "coverage",
+      "description": "Test coverage must be at least 80%"
+    },
+    "new_coverage": {
+      "operator": "LT", 
+      "threshold": "80.0",
+      "metric": "new_coverage",
+      "description": "New code coverage must be at least 80%"
+    },
+    "duplicated_lines_density": {
+      "operator": "GT",
+      "threshold": "3.0",
+      "metric": "duplicated_lines_density",
+      "description": "Duplicated lines density must be less than 3%"
+    },
+    "new_duplicated_lines_density": {
+      "operator": "GT",
+      "threshold": "3.0",
+      "metric": "new_duplicated_lines_density",
+      "description": "New duplicated lines density must be less than 3%"
+    },
+    "maintainability_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "sqale_rating",
+      "description": "Maintainability rating must be A"
+    },
+    "new_maintainability_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "new_maintainability_rating",
+      "description": "New maintainability rating must be A"
+    },
+    "reliability_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "reliability_rating",
+      "description": "Reliability rating must be A"
+    },
+    "new_reliability_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "new_reliability_rating",
+      "description": "New reliability rating must be A"
+    },
+    "security_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "security_rating",
+      "description": "Security rating must be A"
+    },
+    "new_security_rating": {
+      "operator": "GT",
+      "threshold": "1",
+      "metric": "new_security_rating",
+      "description": "New security rating must be A"
+    },
+    "security_hotspots_reviewed": {
+      "operator": "LT",
+      "threshold": "100",
+      "metric": "security_hotspots_reviewed",
+      "description": "All security hotspots must be reviewed"
+    },
+    "new_security_hotspots_reviewed": {
+      "operator": "LT",
+      "threshold": "100",
+      "metric": "new_security_hotspots_reviewed", 
+      "description": "All new security hotspots must be reviewed"
+    }
+  },
+  "accessibility": {
+    "axe_violations": {
+      "critical": 0,
+      "serious": 0,
+      "moderate": 5,
+      "minor": 10,
+      "description": "Accessibility violations thresholds"
+    }
+  },
+  "performance": {
+    "bundle_size_limit": "250KB",
+    "initial_load_time": "3s",
+    "lcp_threshold": "2.5s",
+    "fid_threshold": "100ms",
+    "cls_threshold": "0.1",
+    "description": "Performance quality gates"
+  }
+} 

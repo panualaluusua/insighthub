@@ -18,6 +18,7 @@ from langsmith import Client, traceable
 from langsmith.evaluation import evaluate
 from langsmith.schemas import Run, Example
 import logging
+from src.orchestrator.monitoring import get_monitor, LocalMonitoringDashboard, monitor_workflow, monitor_node
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -31,6 +32,7 @@ class LangSmithDashboardTester:
         self.client = None
         self.project_name = "InsightHub"
         self.test_results = {}
+        self.local_monitor = get_monitor() # Initialize local monitoring dashboard
         
     def setup_client(self) -> bool:
         """Set up LangSmith client and validate configuration."""

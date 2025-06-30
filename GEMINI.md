@@ -1,9 +1,4 @@
 ---
-description: Guide for using Taskmaster to manage task-driven development workflows
-globs: **/*
-alwaysApply: true
----
----
 description: Multi-agent development workflow using Git worktrees and Taskmaster for isolated feature development
 globs: **/*
 alwaysApply: true
@@ -39,13 +34,13 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 ---
 
 ## See also
-- [taskmaster.mdc](mdc:tools/taskmaster.mdc)
-- [self_improve.mdc](mdc:general/self_improve.mdc)
-- [tdd_testing.mdc](mdc:python/tdd_testing.mdc)
-- [type_schema_style.mdc](mdc:general/type_schema_style.mdc)
-- [anti_patterns.mdc](mdc:general/anti_patterns.mdc)
-- [immutability_functional.mdc](mdc:general/immutability_functional.mdc)
-- [python_development.mdc](mdc:python/python_development.mdc)
+- @taskmaster.mdc
+- @self_improve.mdc
+- @tdd_testing.mdc
+- @type_schema_style.mdc
+- @anti_patterns.mdc
+- @immutability_functional.mdc
+- @python_development.mdc
 
 ---
 
@@ -119,8 +114,8 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 ### **Primary Interaction Methods**
 
 - **MCP Server (Recommended for AI Agents)**: Use MCP tools for better performance and structured data exchange
-  - Refer to [mcp.mdc](mdc:.cursor/mcp.mdc) for MCP architecture details
-  - See [taskmaster.mdc](mdc:tools/taskmaster.mdc) for comprehensive tool reference
+  - Refer to @mcp.mdc for MCP architecture details
+  - See @taskmaster.mdc for comprehensive tool reference
   - Restart MCP server if core logic changes
 
 - **CLI (For Users & Fallback)**: Use `task-master` command for direct terminal interaction

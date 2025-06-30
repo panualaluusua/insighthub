@@ -1,0 +1,163 @@
+============================= test session starts =============================
+platform win32 -- Python 3.13.3, pytest-8.4.1, pluggy-1.6.0
+rootdir: C:\Users\panua\projektit\insight_hub
+configfile: pyproject.toml
+plugins: anyio-4.9.0, langsmith-0.4.4, cov-6.2.1, mock-3.14.1
+collected 12 items
+
+tests\test_youtube_processor.py .......F....                             [100%]
+
+================================== FAILURES ===================================
+_________________________ test_download_audio_success _________________________
+
+self = <src.youtube_processor.YouTubeProcessor object at 0x0000019F12CE3350>
+url = 'https://www.youtube.com/watch?v=some_video_id'
+
+    def download_audio(self, url: str) -> str:
+        """
+        Downloads the audio from a YouTube URL to a temporary file.
+    
+        Args:
+            url: The URL of the YouTube video.
+    
+        Returns:
+            The file path to the downloaded audio file.
+    
+        Raises:
+            ValueError: If the URL is invalid.
+        """
+        video_id = self.get_video_id(url)
+        if not video_id:
+            raise ValueError("Invalid YouTube URL provided.")
+    
+        import uuid
+        temp_dir = tempfile.gettempdir()
+        temp_filename = f"youtube_audio_{uuid.uuid4().hex[:8]}.%(ext)s"
+        temp_audio_path = os.path.join(temp_dir, temp_filename)
+    
+        ydl_opts = {
+            'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+            'outtmpl': temp_audio_path,
+            'noplaylist': True,
+            'no_check_certificate': True,
+            'force_overwrites': True,
+            'rm_cachedir': True,
+        }
+    
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.extract_info(url, download=True)
+    
+            # Find the actual downloaded file (yt-dlp replaces %(ext)s with the actual extension)
+            temp_dir = tempfile.gettempdir()
+            base_name = temp_filename.replace('.%(ext)s', '')
+            downloaded_files = [f for f in os.listdir(temp_dir) if f.startswith(base_name)]
+    
+            if not downloaded_files:
+>               raise ValueError(f"No audio file was created with pattern {base_name}*")
+E               ValueError: No audio file was created with pattern youtube_audio_c409b551*
+
+src\youtube_processor.py:55: ValueError
+
+During handling of the above exception, another exception occurred:
+
+mock_yt_dlp = <MagicMock name='YoutubeDL' id='1782727189104'>
+mock_exists = <MagicMock name='exists' id='1782727189440'>
+mock_getsize = <MagicMock name='getsize' id='1782727189776'>
+processor = <src.youtube_processor.YouTubeProcessor object at 0x0000019F12CE3350>
+
+    @patch('src.youtube_processor.os.path.getsize')
+    @patch('src.youtube_processor.os.path.exists')
+    @patch('src.youtube_processor.yt_dlp.YoutubeDL')
+    def test_download_audio_success(mock_yt_dlp, mock_exists, mock_getsize, processor):
+        """Tests successful audio download using yt-dlp."""
+        # Configure the mock to simulate yt-dlp's behavior
+        mock_ydl_instance = mock_yt_dlp.return_value.__enter__.return_value
+        mock_ydl_instance.extract_info.return_value = {}  # Simulate successful extraction
+        mock_exists.return_value = True
+        mock_getsize.return_value = 1024 # Simulate a non-empty file
+    
+        # The path we expect the method to generate and use
+        temp_audio_path = "/tmp/audio.mp3"
+    
+        # We need to mock the tempfile creation to return a predictable path
+        with patch('src.youtube_processor.tempfile.NamedTemporaryFile') as mock_tempfile:
+            # Make the mock tempfile object have a 'name' attribute
+            mock_tempfile.return_value.name = temp_audio_path
+    
+            url = "https://www.youtube.com/watch?v=some_video_id"
+>           downloaded_path = processor.download_audio(url)
+                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_youtube_processor.py:80: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <src.youtube_processor.YouTubeProcessor object at 0x0000019F12CE3350>
+url = 'https://www.youtube.com/watch?v=some_video_id'
+
+    def download_audio(self, url: str) -> str:
+        """
+        Downloads the audio from a YouTube URL to a temporary file.
+    
+        Args:
+            url: The URL of the YouTube video.
+    
+        Returns:
+            The file path to the downloaded audio file.
+    
+        Raises:
+            ValueError: If the URL is invalid.
+        """
+        video_id = self.get_video_id(url)
+        if not video_id:
+            raise ValueError("Invalid YouTube URL provided.")
+    
+        import uuid
+        temp_dir = tempfile.gettempdir()
+        temp_filename = f"youtube_audio_{uuid.uuid4().hex[:8]}.%(ext)s"
+        temp_audio_path = os.path.join(temp_dir, temp_filename)
+    
+        ydl_opts = {
+            'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+            'outtmpl': temp_audio_path,
+            'noplaylist': True,
+            'no_check_certificate': True,
+            'force_overwrites': True,
+            'rm_cachedir': True,
+        }
+    
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                ydl.extract_info(url, download=True)
+    
+            # Find the actual downloaded file (yt-dlp replaces %(ext)s with the actual extension)
+            temp_dir = tempfile.gettempdir()
+            base_name = temp_filename.replace('.%(ext)s', '')
+            downloaded_files = [f for f in os.listdir(temp_dir) if f.startswith(base_name)]
+    
+            if not downloaded_files:
+                raise ValueError(f"No audio file was created with pattern {base_name}*")
+    
+            actual_audio_path = os.path.join(temp_dir, downloaded_files[0])
+    
+            # Check if the file exists and is not empty
+            if not os.path.exists(actual_audio_path):
+                raise ValueError(f"Audio file was not created at {actual_audio_path}")
+            elif os.path.getsize(actual_audio_path) == 0:
+                raise ValueError(f"Audio download resulted in an empty file at {actual_audio_path}. File exists but has 0 bytes.")
+    
+            return actual_audio_path
+        except Exception as e:
+>           raise ValueError(f"Failed to download audio: {e}")
+E           ValueError: Failed to download audio: No audio file was created with pattern youtube_audio_c409b551*
+
+src\youtube_processor.py:67: ValueError
+============================== warnings summary ===============================
+..\..\AppData\Local\pypoetry\Cache\virtualenvs\reddit-weekly-top-RHZp4-00-py3.13\Lib\site-packages\ctranslate2\__init__.py:8
+  C:\Users\panua\AppData\Local\pypoetry\Cache\virtualenvs\reddit-weekly-top-RHZp4-00-py3.13\Lib\site-packages\ctranslate2\__init__.py:8: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+    import pkg_resources
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/test_youtube_processor.py::test_download_audio_success - ValueEr...
+=================== 1 failed, 11 passed, 1 warning in 0.84s ===================

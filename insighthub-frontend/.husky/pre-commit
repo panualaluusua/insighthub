@@ -1,0 +1,67 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running quality checks before commit..."
+
+# Change to frontend directory
+cd insighthub-frontend
+
+# Run linting
+echo "📝 Checking code style and linting..."
+npm run lint:json > /dev/null 2>&1
+LINT_EXIT_CODE=$?
+
+if [ $LINT_EXIT_CODE -ne 0 ]; then
+  echo "❌ Linting failed. Please fix the issues and try again."
+  npm run lint
+  exit 1
+fi
+
+# Run type checking
+echo "🔍 Checking TypeScript types..."
+npm run check > /dev/null 2>&1
+TYPE_EXIT_CODE=$?
+
+if [ $TYPE_EXIT_CODE -ne 0 ]; then
+  echo "❌ Type checking failed. Please fix the issues and try again."
+  npm run check
+  exit 1
+fi
+
+# Run unit tests
+echo "🧪 Running unit tests..."
+npm run test > /dev/null 2>&1
+TEST_EXIT_CODE=$?
+
+if [ $TEST_EXIT_CODE -ne 0 ]; then
+  echo "❌ Unit tests failed. Please fix the failing tests and try again."
+  npm run test
+  exit 1
+fi
+
+# Check test coverage
+echo "📊 Checking test coverage..."
+npm run test:coverage > /dev/null 2>&1
+COVERAGE_EXIT_CODE=$?
+
+if [ $COVERAGE_EXIT_CODE -ne 0 ]; then
+  echo "❌ Test coverage below threshold. Please add more tests."
+  exit 1
+fi
+
+# Run security audit
+echo "🔒 Running security audit..."
+npm audit --audit-level=high > /dev/null 2>&1
+AUDIT_EXIT_CODE=$?
+
+if [ $AUDIT_EXIT_CODE -ne 0 ]; then
+  echo "⚠️  Security vulnerabilities found. Please review and fix:"
+  npm audit --audit-level=high
+  echo "Continue with commit? (y/N)"
+  read -r response
+  if [ "$response" != "y" ] && [ "$response" != "Y" ]; then
+    exit 1
+  fi
+fi
+
+echo "✅ All quality checks passed! Proceeding with commit..." 

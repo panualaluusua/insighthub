@@ -27,7 +27,15 @@
 		"test:bug-detection": "playwright test tests/ai-powered-visual.spec.ts --grep='AI Bug Detection'",
 		"analyze:ai": "node scripts/analyze-ai-test-results.cjs",
 		"test:all": "npm run test && npm run test:e2e && npm run test:ai",
-		"ci:test": "npm run test:coverage && npm run test:e2e && npm run test:ai"
+		"ci:test": "npm run test:coverage && npm run test:e2e && npm run test:ai",
+		"qa:dashboard": "node scripts/quality-dashboard.js",
+		"qa:audit": "npm run lint && npm run check && npm run test:coverage && npm run test:e2e && npm run test:ai && npm run qa:security",
+		"qa:security": "npm audit --audit-level=high",
+		"qa:performance": "npm run build && npx lighthouse-ci autorun",
+		"qa:accessibility": "npm run test:a11y && npx pa11y-ci http://localhost:4173",
+		"qa:gates": "npm run qa:audit && npm run qa:dashboard",
+		"lint:json": "eslint . --format=json",
+		"lint:fix": "eslint . --fix"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.10.2",
