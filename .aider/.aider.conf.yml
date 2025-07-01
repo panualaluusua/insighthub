@@ -1,0 +1,12 @@
+# Aider per-project configuration
+read: GEMINI.md
+
+main_model: deepseek             # edullinen ja kykenevä DeepSeek (alias deepseek/r1)
+editor_model: sonnet             # tarkempi muokkausmalli
+weak_model: gpt-3.5-turbo        # halpa diff-malli
+
+code_theme: dracula              # tummalle taustalle
+commit_language: en              # englanninkieliset commit-viestit
+
+add_gitignore_files: true        # huomioi .gitignore-luettelot
+map_tokens: 12000                # tilaa Python+Svelte-repolle

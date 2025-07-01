@@ -1,0 +1,7 @@
+*.png
+*/playwright-report/*
+*.spec.ts
+node_modules/**
+static/**
+**/*.lock
+docs/**/*.md 
