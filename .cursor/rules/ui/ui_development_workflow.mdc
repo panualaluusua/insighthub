@@ -193,58 +193,49 @@ test.describe('AI-Powered Component Analysis', () => {
 });
 ```
 
-### Phase 4: Quality Assurance
-```markdown
-## Quality Gates Checklist
+### Phase 4: Optional Automated Quality Audit (Agent Workflow)
 
-### Code Quality
-- [ ] TypeScript interfaces properly defined
-- [ ] Component follows established patterns
-- [ ] Error handling implemented
-- [ ] Performance optimized
-- [ ] Bundle size impact assessed
+**For complex or critical UI components, the agent SHOULD consider performing an automated audit using the Aider-powered auditor.** This step is not mandatory for every component but is highly recommended in the following scenarios to ensure the highest standards:
 
-### Design System Compliance
-- [ ] Uses design system tokens exclusively
-- [ ] Follows component patterns
-- [ ] Responsive design implemented
-- [ ] Animation/transitions appropriate
-- [ ] Dark mode support (if applicable)
+-   **When to consider an audit:**
+    -   The component is complex and handles significant state logic.
+    -   The component accepts and processes user input (high risk for XSS).
+    -   The component is a core, reusable part of the application's design system.
+    -   The changes involve significant refactoring of an existing critical component.
+    -   The component has known performance or accessibility concerns that need verification.
 
-### Accessibility Compliance
-- [ ] Semantic HTML structure
-- [ ] ARIA attributes correct
-- [ ] Keyboard navigation functional
-- [ ] Screen reader compatibility
-- [ ] Color contrast verified (WCAG AA)
-- [ ] Focus management implemented
+**If an audit is performed, the agent should follow this process:**
 
-### Testing Coverage
-- [ ] Unit tests written (80%+ coverage)
-- [ ] Accessibility tests pass
-- [ ] Cross-browser compatibility verified
-- [ ] Performance benchmarks met
-- [ ] E2E tests (if required)
-- [ ] **AI-powered visual analysis completed**
-- [ ] **AI bug detection tests pass**
-- [ ] **AI responsive design validation successful**
+- **1. Identify Changed Files:** Determine which UI-related files have been modified.
+  ```bash
+  # Example: Find changed Svelte components and their types
+  git status --short | grep -E '\.(svelte|ts)$'
+  ```
 
-### AI-Powered Testing Validation
-- [ ] **@test-ai-analyze command executed successfully**
-- [ ] **AI visual pattern recognition validates component states**
-- [ ] **AI accessibility analysis shows no violations**
-- [ ] **AI responsive behavior analysis passes across all breakpoints**
-- [ ] **AI performance recommendations reviewed and implemented**
-- [ ] **AI-generated bug detection report shows no critical issues**
+- **2. Decide Which Audits to Run:** For UI components, the following audits are typically useful:
+    - **New or modified component?** -> `CODE_QUALITY`, `PERFORMANCE`
+    - **Component handling user input?** -> `SECURITY`
 
-### Documentation
-- [ ] JSDoc comments added
-- [ ] Usage examples created
-- [ ] Props and events documented
-- [ ] Accessibility features noted
-- [ ] Migration guide (if breaking changes)
-- [ ] **AI testing results documented in component README**
-```
+- **3. Execute the Audit Script:** Run the `run_aider_audit.sh` script for each required audit.
+  ```bash
+  # Example: Auditing a new Svelte component
+  ./run_aider_audit.sh CODE_QUALITY src/lib/components/NewButton.svelte
+  ```
+
+- **4. Review and Act on the Report:** The agent must analyze the generated report and address any `❌ FAIL` or `⚠️ WARN` statuses before completing the task.
+
+- **5. Mark Complete & Commit**:
+  ```bash
+  task-master set-status --id=<task-id> --status=done
+  # Add a note if an audit was performed
+  git commit -m "feat(ui): Complete component NewButton, optional audit passed."
+  ```
+
+### Phase 5: Documentation & Cross-Reference
+
+- **Document the Component**: For every new or changed UI component, update or create documentation in `insighthub-frontend/COMPONENT_GUIDELINES.md` or a new file in `docs/frontend/`.
+- **Link Documentation to Task**: Add a reference to the documentation in the relevant Taskmaster task (in `details`, `comments`, or a `docs` field).
+- **Cross-Reference**: Ensure the new/updated documentation is listed in the UI Documentation Index (`docs/frontend/UI_DOCUMENTATION.md`).
 
 ## AI-Powered Testing Workflow Integration
 
@@ -428,11 +419,11 @@ This workflow integrates with and references the following specialized UI rules:
 
 ### Performance Issues
 ```markdown
-**Problem**: Component causing layout shifts
-**Solution**: Reserve space for dynamic content, use aspect ratios
+**Problem**: component causing layout shifts
+**Solution**: reserve space for dynamic content, use aspect ratios
 
-**Problem**: Large bundle sizes
-**Solution**: Implement code splitting, tree shaking, dynamic imports
+**Problem**: large bundle sizes
+**Solution**: implement code splitting, tree shaking, dynamic imports
 ```
 
 ---

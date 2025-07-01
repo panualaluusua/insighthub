@@ -14,7 +14,7 @@ alwaysApply: true
 **This rule defines the standard process for multi-agent development using Git worktrees and Taskmaster.**
 
 ## Key Principles
-- **Always use Git worktrees for feature development - main repository stays on main branch**
+- **Always use Git worktrees for feature development - main repository stays on master branch**
 - **Work directly in master tag context - avoid complex tag operations that risk data loss**
 - **Create worktree first, then identify and work on specific tasks/subtasks**
 - **Keep task management simple and safe**
@@ -22,8 +22,8 @@ alwaysApply: true
 ### DO / DON'T Examples
 ```bash
 # ✅ DO: Create worktree first, then work on specific task in master context
-git worktree add -b feat/new-login ../login-feature main
-cd ../login-feature
+git worktree add -b feat/new-login worktrees/login-feature master
+cd worktrees/login-feature
 task-master show 35.8  # Work directly on the task
 
 # ❌ DON'T: Use complex tag moving operations that risk data loss
@@ -63,12 +63,12 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 
 - **Create Worktree & Branch**: Create an isolated environment for development
   ```bash
-  git worktree add -b feat/feature-name ../feature-name-worktree main
+  git worktree add -b feat/feature-name worktrees/feature-name-worktree master
   ```
 
 - **Initialize Development Context**: Move into the new worktree (stay in master tag)
   ```bash
-  cd ../feature-name-worktree
+  cd worktrees/feature-name-worktree
   ```
 
 - **Identify Specific Task**: Choose the specific task/subtask to work on
@@ -88,22 +88,92 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 - **Log Implementation Plan**: Use `task-master update-subtask` to document approach
 - **Implement Code**: Follow TDD principles during development
 - **Log Progress**: Use `task-master update-subtask` to record findings and decisions
-- **Mark Complete**: Use `task-master set-status --id=<task-id> --status=done`
-- **Commit Work**: `git commit -m "feat: complete task/subtask X"`
-- **Continue**: Work on related subtasks or identify next task
+
+### **Phase 2.5: Automated Quality Audit (Agent Workflow)**
+
+**Before marking a task as complete, the agent MUST perform an automated audit using the Aider-powered auditor.** This ensures all code meets our quality, security, performance, and cost standards.
+
+- **1. Analyze the Task Context:** Review the task details and identify what type of code changes were made.
+  ```bash
+  # Check what files were actually modified
+  git status --short
+  # Or for a feature branch:
+  # git diff --name-only master
+  ```
+
+- **2. AI-Powered Smart File Selection:** **The AI agent should intelligently select relevant files for auditing based on:**
+  - **Task type and scope** (authentication → security audit)
+  - **File content analysis** (API endpoints → security + performance)
+  - **Technology stack** (database queries → performance + cost)
+  - **Risk assessment** (user input handling → security)
+  
+  **The enhanced Aider auditor now automatically filters irrelevant rules**, but file selection is still critical:
+  
+  **Examples of smart selection:**
+  ```bash
+  # ✅ GOOD: Security audit for authentication code
+  ./run_aider_audit.ps1 -AuditType SECURITY -Files "src/auth.py", "src/middleware/auth.ts"
+  
+  # ✅ GOOD: Performance audit for database operations  
+  ./run_aider_audit.ps1 -AuditType PERFORMANCE -Files "src/orchestrator/storage.py", "src/database/queries.py"
+  
+  # ✅ NOW ACCEPTABLE: Enhanced auditor will skip irrelevant rules
+  ./run_aider_audit.ps1 -AuditType SECURITY -Files "README.md"
+  # Will produce a report explaining why most security rules don't apply to documentation
+  ```
+
+- **3. Select Appropriate Audit Types:** Based on the AI analysis, choose audits that match the actual code:
+    - **SECURITY:** Authentication, authorization, API endpoints, user input, configuration files
+    - **PERFORMANCE:** Database queries, loops, API calls, caching, algorithmic complexity
+    - **CODE_QUALITY:** General code structure, naming, documentation, type safety
+    - **COST:** External API calls, cloud services, database operations, resource usage
+
+- **4. Execute Targeted Audits:** Run the audit script for each selected audit type and file combination.
+  ```bash
+  # Example: New API endpoint requiring multiple audits
+  ./run_aider_audit.ps1 -AuditType SECURITY -Files "src/routes/api/users/+server.ts"
+  ./run_aider_audit.ps1 -AuditType PERFORMANCE -Files "src/routes/api/users/+server.ts"
+  ```
+
+- **5. AI-Powered Report Analysis:** The agent must:
+    - **Read and understand each generated report** from `docs/reports/`
+    - **Identify actionable items** from ❌ FAIL and ⚠️ WARN statuses
+    - **Prioritize critical security and performance issues**
+    - **Create implementation tasks** for significant findings
+    - **Determine if findings block task completion** or can be addressed later
+
+- **6. Create Fix Loop if Needed:** If critical issues are found:
+    - Address ❌ FAIL issues immediately
+    - Document ⚠️ WARN issues for future improvement
+    - Re-run audits after fixes to verify resolution
+    - Update the task with audit findings and resolution notes
+
+- **7. Mark Complete & Document**: Once audits pass or issues are appropriately handled:
+  ```bash
+  task-master update-subtask --id=<task-id> --prompt="Audit completed: [SECURITY: ✅ PASS] [PERFORMANCE: ⚠️ Minor warnings documented] - See reports in docs/reports/"
+  task-master set-status --id=<task-id> --status=done
+  git commit -m "feat: Complete task X with audit validation"
+  ```
+
+**AI Agent Guidelines for Audit Relevance:**
+- **Before auditing:** Analyze file content to ensure audit type relevance
+- **Skip irrelevant audits:** Don't run SECURITY audits on pure documentation
+- **Focus on changed code:** Prioritize files that were actually modified for the task
+- **Consider downstream impact:** Audit files that interact with the changed code
+- **Use contextual intelligence:** A new database migration might need PERFORMANCE + COST audits
 
 ### **Phase 3: Integrate & Finalize**
 
 - **Return to Main Repository**: Navigate back to the main directory
-- **Merge Feature**: Integrate the completed feature branch
+- **Merge Feature**: Integrate the completed feature branch. When creating the Pull Request, **link to the generated audit reports** in the PR description for human review.
   ```bash
-  git checkout main
+  git checkout master
   git merge feat/feature-name
   ```
 
 - **Cleanup Git**: Remove the feature's worktree and branch
   ```bash
-  git worktree remove ../feature-name-worktree
+  git worktree remove worktrees/feature-name-worktree
   git branch -d feat/feature-name
   ```
 

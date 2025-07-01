@@ -1,17 +1,25 @@
-# Create a new UI development worktree at ../ui-dev on branch ui-development
-$branch = "ui-development"
-$worktree = "../ui-dev"
+# Create a new git worktree in the 'worktrees' directory.
+# Usage: ./scripts/create_worktree.ps1 -BranchName <branch-name> [-WorktreeName <worktree-name>]
+[CmdletBinding()]
+param (
+    [Parameter(Mandatory=$true)]
+    [string]$BranchName,
 
-# Check if branch exists
-$branchExists = git branch --list $branch
-if (-not $branchExists) {
-    git branch $branch
-}
+    [Parameter(Mandatory=$false)]
+    [string]$WorktreeName = $BranchName
+)
+
+$worktreePath = "worktrees/$WorktreeName"
+$baseBranch = "master"
+
+Write-Host "Creating worktree for branch '$BranchName' at '$worktreePath'..."
 
 # Add worktree if directory doesn't exist
-if (-not (Test-Path $worktree)) {
-    git worktree add $worktree $branch
-    Write-Host "Worktree created at $worktree for branch $branch."
+if (-not (Test-Path $worktreePath)) {
+    git worktree add -b "$BranchName" "$worktreePath" "$baseBranch"
+    Write-Host "Worktree created successfully."
+    Write-Host "To start working, run: cd $worktreePath"
 } else {
-    Write-Host "Worktree directory $worktree already exists."
+    Write-Host "Error: Worktree directory '$worktreePath' already exists."
+    exit 1
 } 

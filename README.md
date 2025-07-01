@@ -1,4 +1,4 @@
-# InsightHub: Reddit & YouTube Aggregator
+# InsightHub: Reddit & YouTube Aggregator v1.0.1
 
 A Streamlit-based web application that aggregates content from Reddit and YouTube, making it easy to discover and organize interesting content from your favorite subreddits and YouTube channels.
 
@@ -168,3 +168,5 @@ This workflow allows you to create worktrees for any branch in a dedicated paren
 For a detailed guide on setting up and using the Dual-Agent Workflow, including best practices and step-by-step instructions, please refer to:
 
 - [`.cursor/rules/dual-agent-workflow.mdc`](.cursor/rules/dual-agent-workflow.mdc)
+
+This is a test line for the PowerShell Aider audit workflow.
