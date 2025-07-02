@@ -7,6 +7,9 @@ alwaysApply: true
 description: Multi-agent development workflow using Git worktrees and Taskmaster for isolated feature development
 globs: **/*
 alwaysApply: true
+
+
+
 ---
 
 # Multi-Agent Git Worktree Development Workflow
@@ -36,16 +39,20 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 # ❌ DON'T: Move tasks between tags unless absolutely necessary
 ```
 
----
 
-## See also
-- [taskmaster.mdc](mdc:tools/taskmaster.mdc)
-- [self_improve.mdc](mdc:general/self_improve.mdc)
-- [tdd_testing.mdc](mdc:python/tdd_testing.mdc)
-- [type_schema_style.mdc](mdc:general/type_schema_style.mdc)
-- [anti_patterns.mdc](mdc:general/anti_patterns.mdc)
-- [immutability_functional.mdc](mdc:general/immutability_functional.mdc)
-- [python_development.mdc](mdc:python/python_development.mdc)
+
+
+--[-](mdc:general/self_improve.mdc)
+
+##[ See also](mdc:general/type_schema_style.mdc)
+- [taskmaster.mdc](mdc:general/anti_patterns.mdc)
+- [self_improve.mdc](mdc:general/immutability_functional.mdc)
+- [tdd_testing.mdc](mdc:python/python_development.mdc)
+- @type_schema_style.mdc
+- @anti_patterns.mdc
+- @immutability_functional.mdc
+- @python_development.mdc
+
 
 ---
 
@@ -78,6 +85,8 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 
 ### **Phase 2: The Development Loop**
 
+**⚠️ CRITICAL: ALL development work MUST happen inside the worktree directory! Never modify files in the main repository during Phase 2.**
+
 **This iterative loop occurs entirely within the feature's dedicated worktree, working in master tag:**
 
 - **Start Task**: Set the task/subtask status to in-progress
@@ -86,10 +95,43 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
   ```
 
 - **Log Implementation Plan**: Use `task-master update-subtask` to document approach
-- **Implement Code**: Follow TDD principles during development
-- **Log Progress**: Use `task-master update-subtask` to record findings and decisions
 
-### **Phase 2.5: Automated Quality Audit (Agent Workflow)**
+- **🔴 TDD Implementation (MANDATORY)**:
+  **ALWAYS follow Test-Driven Development - tests FIRST, then implementation:**
+  
+  1. **Write Tests First** (Red phase):
+     ```bash
+     # Write failing tests for the feature you're about to implement
+     # For Python: pytest test_new_feature.py
+     # For JavaScript: npm test new-feature.test.js
+     ```
+  
+  2. **Implement Minimal Code** (Green phase):
+     ```bash
+     # Write the minimal code to make tests pass
+     # Focus on making tests green, not perfect code
+     ```
+  
+  3. **Refactor** (Refactor phase):
+     ```bash
+     # Improve code quality while keeping tests green
+     # Run tests after each refactor to ensure nothing breaks
+     ```
+  
+  4. **Repeat TDD Cycle**: Continue Red-Green-Refactor for each feature increment
+
+- **Log Progress**: Use `task-master update-subtask` to record TDD cycles, findings, and decisions
+
+- **📚 Create Documentation**: As you complete implementation, create documentation in `docs/` folder:
+  ```bash
+  # For backend features: docs/backend/FEATURE_NAME.md
+  # For frontend features: docs/frontend/FEATURE_NAME.md
+  # For testing strategies: docs/testing/FEATURE_NAME.md
+  ```
+
+### **Phase 2.5: 🚨 MANDATORY Quality Audit (Cannot Skip!)**
+
+**⚠️ CRITICAL: You CANNOT mark a task as complete without running Aider audits! This step is MANDATORY for all code changes.**
 
 **Before marking a task as complete, the agent MUST perform an automated audit using the Aider-powered auditor.** This ensures all code meets our quality, security, performance, and cost standards.
 
@@ -180,13 +222,16 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 - **Verify Task Status**: Ensure completed tasks are marked as done in master tag
   ```bash
   task-master list --status=done
-  ```
+  ```[](mdc:docs/frontend/PERFORMANCE_VISUAL_TESTING.md)
 
-- **Link Documentation to Task**: After creating or updating documentation, add a reference (file path or markdown link) to the relevant documentation in the Taskmaster task's `details`, `comments`, or a dedicated `docs` field. This ensures future readers can easily find the implementation details.
+- **Link Documentation to Task**: After creating or upd@ating documentation, add a reference (file path or markdown link) to the relevant documentation in the Taskmaster task's `details`, `comments`, or a dedicated `docs` field. This ensures future readers can easily find the implementation details.
   ```bash
   # Example: Update the task with a documentation link
-  task-master update-task --id=<task-id> --prompt="See [PERFORMANCE_VISUAL_TESTING.md](mdc:docs/frontend/PERFORMANCE_VISUAL_TESTING.md) for full implementation details."
+  task-master update-task --id=<task-id> --prompt="See @PERFORMANCE_VISUAL_TESTING.md for full implementation details."
   ```
+
+
+
 
 ---
 
@@ -195,8 +240,8 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 ### **Primary Interaction Methods**
 
 - **MCP Server (Recommended for AI Agents)**: Use MCP tools for better performance and structured data exchange
-  - Refer to [mcp.mdc](mdc:.cursor/mcp.mdc) for MCP architecture details
-  - See [taskmaster.mdc](mdc:tools/taskmaster.mdc) for comprehensive tool reference
+  - Refer to @mcp.mdc for MCP architecture details
+  - See @taskmaster.mdc for comprehensive tool reference
   - Restart MCP server if core logic changes
 
 - **CLI (For Users & Fallback)**: Use `task-master` command for direct terminal interaction
@@ -244,6 +289,9 @@ task-master update-subtask --id=35.8 --prompt="Starting implementation..."
 10. **Commit Changes**: Stage and commit with comprehensive message
 11. **Proceed**: Identify next subtask using `task-master next`
 
+
+
+
 ---
 
 ## **📚 Documentation Requirements**
@@ -275,6 +323,9 @@ task-master set-status --id=35.7 --status=done
 # Without creating proper documentation in docs/ folder
 ```
 
+
+
+
 ---
 
 ## 🤖 AI-Powered Testing & Research Requirements
@@ -299,14 +350,17 @@ task-master set-status --id=35.7 --status=done
 
 ### Example Workflow Step
 
-```bash
+```bash[](mdc:path/to/report)
 # Run AI-powered tests
 npm run test:ai
 npm run analyze:ai
 
 # Link results to Taskmaster
-# task-master update-task --id=<task-id> --prompt="See [AI test report](mdc:path/to/report) for details."
+# task-master update-task --id=<task-id> --prompt="See @AI test report for details."
 ```
+
+
+
 
 ---
 
@@ -331,6 +385,9 @@ task-master update-subtask --id=35.8 --prompt="Progress update"
 # task-master move --from=master.5 --to=feat-something.1
 ```
 
+
+
+
 ---
 
 ## Maintenance Notes
@@ -339,4 +396,7 @@ task-master update-subtask --id=35.8 --prompt="Progress update"
 - **Encourage all contributors to suggest workflow improvements**
 - **Update task management practices as Taskmaster features evolve**
 - **📚 Maintain documentation in `docs/` folder for all workflow changes**
+
+
+
 - **⚠️ ALWAYS prioritize data safety over complex workflows**
