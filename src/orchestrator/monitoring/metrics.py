@@ -100,3 +100,39 @@ class WorkflowMetrics:
             workflow.nodes.append(node)
         
         return workflow 
+
+# ---------------------------------------------------------------------------
+# Task 38.5 – Aggregation Helpers
+# ---------------------------------------------------------------------------
+
+def aggregate_workflow_metrics(workflows: List["WorkflowMetrics"]) -> Dict[str, Dict[str, Any]]:
+    """Aggregate a list of ``WorkflowMetrics`` instances into node-level stats.
+
+    Returns a mapping ``node_name → {count, error_count, durations, p95_duration, error_rate}``.
+    """
+    from statistics import mean, quantiles
+
+    node_stats: Dict[str, Dict[str, Any]] = {}
+
+    for wf in workflows:
+        for node in wf.nodes:
+            stats = node_stats.setdefault(node.node_name, {
+                "durations": [],
+                "error_count": 0,
+                "count": 0,
+            })
+
+            if node.duration is not None:
+                stats["durations"].append(node.duration)
+            if node.status != "success":
+                stats["error_count"] += 1
+            stats["count"] += 1
+
+    # Post-process metrics
+    for node_name, stats in node_stats.items():
+        durations = stats["durations"] or [0]
+        stats["p95_duration"] = quantiles(durations, n=100)[94] if len(durations) > 1 else durations[0]
+        stats["avg_duration"] = mean(durations)
+        stats["error_rate"] = stats["error_count"] / stats["count"] if stats["count"] else 0.0
+
+    return node_stats 

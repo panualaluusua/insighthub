@@ -566,4 +566,77 @@ def check_dependency_updates():
         print("  ✅ All packages up to date")
 ```
 
+## Security and Compliance
+
+### Optimization & Cache Configuration (Task 38.5)
+
+> **Status:** Introduced in July 2025 – enabled when `ENABLE_OPTIMIZATIONS=true`.
+
+### Environment Variables
+
+| Variable | Default | Purpose |
+|----------|---------|---------|
+| `ENABLE_OPTIMIZATIONS` | `false` | Master switch – routes `Orchestrator.process_content()` through the new `OptimizedOrchestrator` pipeline. |
+| `IH_CACHE_MAX_AGE_HOURS` | `24` | TTL for a single ContentCache entry. |
+| `IH_CACHE_MAX_ITEMS` | `1000` | Maximum number of cached items before LRU eviction begins. |
+| `METRICS_TUNE_INTERVAL_MIN` | `30` | Minimum minutes between automatic metric-driven tuning cycles. |
+| `RETRY_TIMEOUT_SEC` | `30` | Per-attempt timeout enforced by `SmartRetryManager`. |
+
+These values are surfaced via a centralized dataclass:
+
+```python
+from src.config import OPTIMIZATION_SETTINGS
+
+print(OPTIMIZATION_SETTINGS.enable_optimizations)
+```
+
+### Metrics-Driven Tuning
+
+The **OptimizerMetricsTuner** aggregates recent `WorkflowMetrics` objects and periodically calls
+
+* `AdaptiveModelSelector.update_from_metrics()` – adjusts model choices based on p95 node duration.
+* `SmartRetryManager.tune_from_metrics()` – recalibrates retry base delays from error frequencies.
+
+Together with new cache hit/miss counters (`ContentCache.stats`) this creates a feedback loop that slowly
+optimises runtime without manual intervention.  Tuning frequency is controlled by
+`METRICS_TUNE_INTERVAL_MIN` to avoid thrashing.
+
+### Operational Impact
+
+* **Enablement**: set `ENABLE_OPTIMIZATIONS=true` in production `.env` and redeploy.
+* **Monitoring**: dashboard surfaces cache hit ratio, timeout occurrences and model latency before/after tuning.
+* **Rollback**: unset the env flag; OptimizedOrchestrator path is bypassed.
+
+## Quick-Start: LangSmith Web Dashboard (Task 38.4)
+
+After ensuring you have Python dependencies installed (`flask`, `langsmith>=0.0.14`), you can launch the live monitoring UI with:
+
+```bash
+python -m src.orchestrator.monitoring.langsmith_web_dashboard  # default http://localhost:8081
+# or explicitly
+python - <<'PY'
+from src.orchestrator.monitoring.langsmith_web_dashboard import run_enhanced_dashboard
+run_enhanced_dashboard(host="0.0.0.0", port=8081, debug=False)
+PY
+```
+
+Environment variables (at minimum):
+
+```
+LANGSMITH_API_KEY=<your_api_key>       # optional for local-only mode
+LANGSMITH_PROJECT=InsightHub           # optional (default as shown)
+```
+
+Health-check endpoints:
+
+| URL | Description |
+|------|-------------|
+| `GET /api/test` | Returns `{"status":"ok"}` JSON – confirms server up |
+| `GET /api/enhanced-dashboard` | Returns the full dashboard JSON payload |
+| `GET /api/langsmith-status` | Quick LangSmith connection / permission check |
+
+> **Tip:** Add `ENABLE_OPTIMIZATIONS=true` to observe cache hit/miss counters and adaptive tuning metrics live.
+
+---
+
 This operational procedures documentation provides comprehensive guidance for maintaining LangSmith infrastructure, handling incidents, and ensuring system reliability. 

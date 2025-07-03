@@ -8,6 +8,7 @@ import pytest
 from unittest.mock import Mock, patch, AsyncMock
 from src.orchestrator.state import ContentState, create_content_state
 from src.orchestrator.nodes.summarizer import SummarizerNode
+from unittest.mock import ANY
 
 
 class TestSummarizerNode:
@@ -38,7 +39,7 @@ class TestSummarizerNode:
         mock_chat_openai.assert_called_once_with(
             model="deepseek-chat",
             base_url="https://api.deepseek.com/v1",
-            api_key=None,  # Will use environment variable
+            api_key=ANY,
             temperature=0.3
         )
 
@@ -214,7 +215,7 @@ class TestSummarizerNode:
         mock_chat_openai.assert_called_once_with(
             model="deepseek-reasoner",
             base_url="https://api.deepseek.com/v1",
-            api_key=None,
+            api_key=ANY,
             temperature=0.3,
             max_tokens=2000
         )

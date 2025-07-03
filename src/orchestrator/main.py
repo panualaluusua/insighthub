@@ -10,9 +10,16 @@ from typing import List, Optional, Callable, Any, Dict
 from src.orchestrator.monitoring import monitor_workflow, monitor_node
 from threading import Lock
 from enum import Enum
+import asyncio
 
 from src.orchestrator.graph import create_orchestrator_graph
 from src.orchestrator.state import ContentState, create_content_state
+from src.orchestrator.optimization import get_optimizer
+from src.orchestrator.nodes.content_fetcher import ContentFetcherNode
+from src.orchestrator.nodes.summarizer import SummarizerNode
+from src.orchestrator.nodes.embedding import EmbeddingNode
+from src.orchestrator.nodes.storage import StorageNode
+from src import config as app_config
 
 logger = logging.getLogger(__name__)
 
@@ -124,6 +131,8 @@ class OrchestratorConfig:
     retry_config: RetryConfig = field(default_factory=RetryConfig)
     circuit_breaker_config: CircuitBreakerConfig = field(default_factory=CircuitBreakerConfig)
     enable_circuit_breaker: bool = True
+    # Toggle for new optimized execution pipeline (Task 38.5)
+    enable_optimizations: bool = False
     
     def __post_init__(self) -> None:
         """Validate configuration values."""
@@ -280,6 +289,9 @@ class Orchestrator:
             config: Configuration for the orchestrator. Uses defaults if None.
         """
         self.config = config or OrchestratorConfig()
+        # If caller did not override, inherit from env flag
+        if not getattr(config, "enable_optimizations", None):
+            self.config.enable_optimizations = app_config.ENABLE_OPTIMIZATIONS
         self.graph = create_orchestrator_graph()
         self._stop_requested = False
         self._current_progress = ProcessingProgress()
@@ -311,6 +323,27 @@ class Orchestrator:
         Returns:
             The processed content state with updated status and data.
         """
+        # Route through the new optimization pipeline when enabled.
+        if self.config.enable_optimizations:
+            try:
+                # Build mapping between node names and callables, mirroring
+                # the LangGraph structure.  This decouples the optimizer
+                # from the LangGraph dependency.
+                storage_node_instance = StorageNode()
+
+                nodes = {
+                    "content_fetcher": ContentFetcherNode(),
+                    "summarizer": SummarizerNode(),
+                    "embedding": EmbeddingNode(),
+                    "storage": lambda st: storage_node_instance.store_content(st),
+                }
+
+                return asyncio.run(get_optimizer().process_with_optimizations(content_state, nodes))
+            except Exception as opt_err:
+                logger.warning(f"Optimizer execution failed, falling back: {opt_err}")
+                # Fallback to legacy path
+                return self._process_content_with_retry(content_state)
+        
         return self._process_content_with_retry(content_state)
     
     def _process_content_with_retry(self, content_state: ContentState) -> ContentState:

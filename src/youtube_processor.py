@@ -6,6 +6,7 @@ import faster_whisper
 import os
 import subprocess
 from src.config import TRANSCRIPTION_METHOD, AUDIO_SPEED_FACTOR
+import uuid
 
 class YouTubeProcessor:
     """
@@ -29,7 +30,6 @@ class YouTubeProcessor:
         if not video_id:
             raise ValueError("Invalid YouTube URL provided.")
 
-        import uuid
         temp_dir = tempfile.gettempdir()
         temp_filename = f"youtube_audio_{uuid.uuid4().hex[:8]}.%(ext)s"
         temp_audio_path = os.path.join(temp_dir, temp_filename)
@@ -188,19 +188,21 @@ class YouTubeProcessor:
             
             if speed_up:
                 # Speed up the audio if requested
-                import uuid
-                temp_dir = tempfile.gettempdir()
-                sped_up_audio_path = os.path.join(temp_dir, f"sped_up_youtube_audio_{uuid.uuid4().hex[:8]}.m4a")
+                sped_up_audio_path = os.path.join(tempfile.gettempdir(), f"sped_up_youtube_audio_{uuid.uuid4().hex[:8]}.m4a")
                 self.speed_up_audio(audio_path, sped_up_audio_path)
                 audio_to_transcribe = sped_up_audio_path
             else:
                 audio_to_transcribe = audio_path
 
+            # Determine transcription backend dynamically (evaluate env var each call)
+            transcription_method = os.getenv("TRANSCRIPTION_METHOD", TRANSCRIPTION_METHOD)
+
             # Transcribe audio
-            if TRANSCRIPTION_METHOD == "openai":
+            if transcription_method == "openai":
                 transcript = self.transcribe_audio_openai(audio_to_transcribe)
             else:
-                transcript = self.transcribe_audio_local(audio_to_transcribe, model_size=model_size)
+                # Use the compatibility wrapper (can be patched in tests)
+                transcript = self.transcribe_audio(audio_to_transcribe, model_size=model_size)
             
             return transcript
         except Exception as e:
@@ -212,3 +214,20 @@ class YouTubeProcessor:
                 os.remove(audio_path)
             if sped_up_audio_path and os.path.exists(sped_up_audio_path):
                 os.remove(sped_up_audio_path)
+
+    # ----------------------------------------------------------------------------------
+    # Backwards-compatibility helpers (legacy tests expect these symbols)
+    # ----------------------------------------------------------------------------------
+
+    def transcribe_audio(self, audio_path: str, model_size: str = "tiny") -> str:  # noqa: D401
+        """Compatibility wrapper.
+
+        Historical test suites referenced a method `transcribe_audio` that was
+        renamed to ``transcribe_audio_local`` when multi-backend support was
+        introduced (OpenAI Whisper vs faster-whisper).
+
+        This thin wrapper preserves the old public interface while delegating
+        to the local transcription implementation so existing integrations and
+        tests keep working.
+        """
+        return self.transcribe_audio_local(audio_path, model_size)

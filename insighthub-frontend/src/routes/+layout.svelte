@@ -1,7 +1,12 @@
 <script lang="ts">
   import '../app.css'
   import { onMount } from 'svelte'
-  import { authActions, authLoading, authError } from '$lib/stores/authStore'
+  import { authActions, authLoading, authError, isAuthenticated } from '$lib/stores/authStore'
+  import PageLayout from '$lib/components/PageLayout.svelte'
+  import type { User } from '@supabase/supabase-js'
+  import { goto } from '$app/navigation'
+  import { page } from '$app/stores'
+  import { browser } from '$app/environment'
 
   // Initialize auth store when app starts
   onMount(() => {
@@ -12,6 +17,11 @@
       if (cleanup) cleanup()
     }
   })
+
+  // Redirect unauthenticated users to login page
+  $: if (browser && !$authLoading && !$isAuthenticated && $page.url.pathname !== '/auth') {
+    goto('/auth');
+  }
 </script>
 
 <!-- Global loading state -->
@@ -54,7 +64,7 @@
   {/if}
 
   <!-- Main app content -->
-  <main class="min-h-screen bg-gray-50">
+  <PageLayout>
     <slot />
-  </main>
-{/if} 
+  </PageLayout>
+{:else} 

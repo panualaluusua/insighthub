@@ -2,6 +2,14 @@ import pytest
 from unittest.mock import patch, MagicMock
 import subprocess
 import uuid
+import os
+import tempfile
+
+# Ensure tests run using the local transcription backend to avoid network/API calls.
+os.environ["TRANSCRIPTION_METHOD"] = "local"
+
+# Import after setting env variable so that any module-level logic picks up the
+# correct backend configuration.
 from src.youtube_processor import YouTubeProcessor
 
 @pytest.fixture

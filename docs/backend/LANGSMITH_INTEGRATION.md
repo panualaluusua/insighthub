@@ -527,4 +527,34 @@ PERFORMANCE_CONFIG = {
 }
 ```
 
+## Workflow Visualization & Adaptive Metrics (Tasks 38.4 & 38.5)
+
+InsightHubin LangSmith-dashboard antaa reaaliaikaiset näkymät workflow-polkuihin ja optimointimittareihin.
+
+### Dashboard-polut
+
+* **Most Common Path** näyttää solmuketjun, jota käytetään useimmin (ks. `/api/enhanced-dashboard → trace_analysis.most_common_path`).
+* **Node Performance** ‑kortit kuvaavat suorituskertoja, onnistumis­prosenttia ja keskimääräistä kestoa.
+
+### Adaptive Metrics
+
+| Metric | Lähde | Käyttötarkoitus |
+|--------|-------|-----------------|
+| `cache_hits` / `cache_misses` | `ContentCache.stats` | Cache-strategian tehokkuus |
+| `avg_duration` & `p95_duration` | `WorkflowMetrics` | AdaptiveModelSelectorin mallivalinta |
+| `error_stats` | SmartRetryManager.tune_from_metrics | Retry-viiveen kalibrointi |
+
+OptimizerMetricsTuner kerää nämä 30 min välein (env `METRICS_TUNE_INTERVAL_MIN`) ja säätää:
+
+1. **AdaptiveModelSelector** → mallin prioriteettikynnys per solmu
+2. **SmartRetryManager** → `base_delay` virhetyyppikohtaisesti
+
+### Quick-Start
+
+Katso **Quick-Start: LangSmith Web Dashboard** ‑osio [LANGSMITH_OPERATIONS.md](LANGSMITH_OPERATIONS.md#quick-start-langsmith-web-dashboard) – sisältää käynnistys­komennot ja API-pisteet.
+
+### Optimointi-asetukset
+
+Optimointi + välimuistiin liittyvät ENV-muuttujat on koottu taulukkoon [Optimization & Cache Configuration](LANGSMITH_OPERATIONS.md#optimization--cache-configuration-task-385).
+
 This documentation provides comprehensive coverage of LangSmith integration setup, configuration, and troubleshooting. The next sections will cover workflow documentation, operational procedures, and training materials. 

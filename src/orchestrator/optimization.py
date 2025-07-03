@@ -15,30 +15,94 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable, Tuple
+from typing import Dict, List, Optional, Any, Callable, Tuple, TYPE_CHECKING
 import logging
 
 from .state import ContentState, update_state_status
 from .monitoring import get_monitor
+from src import config as app_config
+
+# Avoid circular import at runtime – import only for type checking
+if TYPE_CHECKING:  # pragma: no cover
+    from src.orchestrator.optimization_tuner import OptimizerMetricsTuner
 
 logger = logging.getLogger(__name__)
 
 
+# -------------------------------------------------------------
+# ContentCache (Enhanced for Task 38.5)
+# -------------------------------------------------------------
+
+# The cache now supports LRU-style eviction based on a configurable
+# maximum number of items (IH_CACHE_MAX_ITEMS).  When the limit is
+# exceeded the *oldest* cache files (based on modification timestamp)
+# are removed.  This prevents unbounded disk usage in long-running
+# orchestrations.
+# -------------------------------------------------------------
+
 class ContentCache:
-    """Intelligent caching system for expensive operations."""
-    
-    def __init__(self, cache_dir: str = ".cache", max_age_hours: int = 24):
+    """On-disk cache with adaptive TTL and LRU eviction."""
+
+    def __init__(
+        self,
+        cache_dir: str = ".cache",
+        max_age_hours: int | None = None,
+        max_items: int | None = None,
+    ) -> None:
+        """Create a cache instance.
+
+        Args:
+            cache_dir: Directory where cached JSON files are stored.
+            max_age_hours: Time-to-live for a cache entry; if *None* the
+              value from ``IH_CACHE_MAX_AGE_HOURS`` is used.
+            max_items: Maximum number of items to keep.  When the limit
+              is reached the oldest files are evicted.  If *None* the
+              value from ``IH_CACHE_MAX_ITEMS`` is applied.
+        """
+
+        # Resolve config fallbacks
+        max_age_hours = max_age_hours or app_config.IH_CACHE_MAX_AGE_HOURS
+        max_items = max_items or app_config.IH_CACHE_MAX_ITEMS
+
         self.cache_dir = Path(cache_dir)
         self.cache_dir.mkdir(exist_ok=True)
+
         self.max_age = timedelta(hours=max_age_hours)
+        self.max_items = max_items
         
-    def _get_cache_key(self, content_type: str, url: str, params: Dict = None) -> str:
-        """Generate cache key for content."""
-        data = {"type": content_type, "url": url, "params": params or {}}
+        # Simple hit/miss counters for performance monitoring
+        self._hits: int = 0
+        self._misses: int = 0
+        
+    def _get_cache_key(
+        self,
+        content_type: str,
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> str:
+        """Generate a stable hash key for caching.
+
+        Args:
+            content_type: Logical category of the content (e.g. "video", "article").
+            url: Unique identifier or URL for the content.
+            params: Optional request parameters that influence the response.
+
+        Returns:
+            Hex MD5 digest that uniquely identifies a cache entry.
+        """
+        data: Dict[str, Any] = {"type": content_type, "url": url, "params": params or {}}
         return hashlib.md5(json.dumps(data, sort_keys=True).encode()).hexdigest()
     
-    def get(self, content_type: str, url: str, params: Dict = None) -> Optional[Any]:
-        """Retrieve cached content if available and fresh."""
+    def get(
+        self,
+        content_type: str,
+        url: str,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Any]:
+        """Retrieve cached content if available and still fresh.
+
+        Returns ``None`` when the cache entry is missing or expired.
+        """
         try:
             cache_key = self._get_cache_key(content_type, url, params)
             cache_file = self.cache_dir / f"{cache_key}.json"
@@ -56,14 +120,25 @@ class ContentCache:
                 return None
                 
             logger.info(f"Cache hit for {content_type}: {url[:50]}...")
+            self._hits += 1
             return cached_data['content']
             
         except Exception as e:
             logger.warning(f"Cache retrieval failed: {e}")
             return None
+        finally:
+            # Register miss if we are returning None
+            if 'cached_data' not in locals():
+                self._misses += 1
     
-    def set(self, content_type: str, url: str, content: Any, params: Dict = None):
-        """Store content in cache."""
+    def set(
+        self,
+        content_type: str,
+        url: str,
+        content: Any,
+        params: Optional[Dict[str, Any]] = None,
+    ) -> None:
+        """Store content in cache and enforce LRU policy."""
         try:
             cache_key = self._get_cache_key(content_type, url, params)
             cache_file = self.cache_dir / f"{cache_key}.json"
@@ -84,15 +159,48 @@ class ContentCache:
         except Exception as e:
             logger.warning(f"Cache storage failed: {e}")
 
+        # Enforce LRU eviction policy if we surpass the max_items limit
+        try:
+            # Use cached "timestamp" field for deterministic ordering even
+            # when the filesystem modification times have identical
+            # resolution (Windows second-level granularity can cause ties).
+            def _file_ts(path: Path) -> float:
+                try:
+                    with path.open("r") as f:
+                        return datetime.fromisoformat(json.load(f)["timestamp"]).timestamp()
+                except Exception:
+                    # Fallback to file mtime if JSON parsing fails
+                    return path.stat().st_mtime
+
+            all_cache_files = sorted(self.cache_dir.glob("*.json"), key=_file_ts)
+            if self.max_items and len(all_cache_files) > self.max_items:
+                surplus = len(all_cache_files) - self.max_items
+                for old_file in all_cache_files[:surplus]:
+                    old_file.unlink(missing_ok=True)
+                    logger.debug(f"Evicted old cache file {old_file.name}")
+        except Exception as e:
+            logger.warning(f"Cache eviction check failed: {e}")
+
+    # ------------------------------------------------------------------
+    # Metrics helpers
+    # ------------------------------------------------------------------
+
+    @property
+    def stats(self) -> Dict[str, int]:
+        """Return simple hit / miss counters for performance dashboards."""
+        return {"hits": self._hits, "misses": self._misses}
+
 
 class SmartRetryManager:
     """Intelligent retry logic with exponential backoff and error-specific strategies."""
     
-    def __init__(self):
+    def __init__(self, timeout_seconds: int = app_config.RETRY_TIMEOUT_SEC):
+        self.timeout_seconds = timeout_seconds
         self.retry_strategies = {
             "rate_limit": {"max_retries": 5, "base_delay": 60, "backoff": 2.0},
             "network": {"max_retries": 3, "base_delay": 5, "backoff": 2.0},
             "api_error": {"max_retries": 2, "base_delay": 10, "backoff": 1.5},
+            "timeout": {"max_retries": 2, "base_delay": 10, "backoff": 2.0},
             "default": {"max_retries": 2, "base_delay": 5, "backoff": 2.0}
         }
     
@@ -110,12 +218,42 @@ class SmartRetryManager:
             return "default"
     
     async def retry_with_backoff(self, func: Callable, *args, **kwargs) -> Any:
-        """Execute function with intelligent retry logic."""
+        """Execute *func* with an adaptive retry strategy.
+
+        The method purposefully catches :class:`Exception` **once** per
+        iteration in order to:
+
+        1. Run :pyfunc:`classify_error` which maps the concrete exception
+           instance to a *retry strategy* key.
+        2. Decide whether another attempt should be made based on the mapping.
+        3. Re-raise the *last* exception once the maximum number of retries for
+           the detected error category is exhausted.
+
+        Since the original exception object is re-raised unchanged, the caller
+        still receives the concrete exception type – generic catching here is
+        therefore safe and does not mask bugs.  This design choice aligns with
+        the Aider CODE_QUALITY checklist requirement to avoid *swallowing*
+        exceptions while still enabling category-based back-off tuning.
+        """
         last_error = None
         
         for attempt in range(max(s["max_retries"] for s in self.retry_strategies.values()) + 1):
             try:
-                return await func(*args, **kwargs) if asyncio.iscoroutinefunction(func) else func(*args, **kwargs)
+                if asyncio.iscoroutinefunction(func):
+                    return await asyncio.wait_for(func(*args, **kwargs), timeout=self.timeout_seconds)
+                else:
+                    # For sync functions we cannot easily enforce timeout without threads; run as is.
+                    return func(*args, **kwargs)
+            except asyncio.TimeoutError as to_err:
+                last_error = to_err
+                error_type = "timeout"
+                strategy = self.retry_strategies.get(error_type, self.retry_strategies["default"])
+                if attempt >= strategy["max_retries"]:
+                    logger.error("Timeout after %s attempts: %s", attempt + 1, to_err)
+                    break
+                delay = strategy["base_delay"] * (strategy["backoff"] ** attempt)
+                logger.warning("Timeout on attempt %s; retrying in %ss", attempt + 1, delay)
+                await asyncio.sleep(delay)
             except Exception as error:
                 last_error = error
                 error_type = self.classify_error(error)
@@ -134,6 +272,29 @@ class SmartRetryManager:
                     time.sleep(delay)
         
         raise last_error
+
+    # ---------------------------------------------------------
+    # Task 38.5: Strategy tuning using error frequency metrics
+    # ---------------------------------------------------------
+
+    def tune_from_metrics(self, error_stats: Dict[str, int]) -> None:
+        """Adjust retry strategies based on observed error frequencies.
+
+        Args:
+            error_stats: Mapping of error_type → occurrence count.
+        """
+        for error_type, count in error_stats.items():
+            if error_type not in self.retry_strategies:
+                continue
+
+            strat = self.retry_strategies[error_type]
+
+            # Simple heuristic: more errors ⇒ increase base delay
+            if count > 100:
+                strat["base_delay"] = min(strat["base_delay"] * 2, 300)
+            elif count < 10:
+                strat["base_delay"] = max(strat["base_delay"] / 2, 1)
+        logger.debug("SmartRetryManager: strategies tuned based on metrics → %s", self.retry_strategies)
 
 
 class AdaptiveModelSelector:
@@ -177,9 +338,60 @@ class AdaptiveModelSelector:
         if success:
             self.performance_history[key]["success_count"] += 1
 
+    # ---------------------------------------------------------
+    # Task 38.5: Dynamic configuration using monitoring metrics
+    # ---------------------------------------------------------
+    def update_from_metrics(self, node_metrics: Dict[str, Dict[str, Any]]) -> None:
+        """Update internal model config preferences based on aggregated
+        node metrics (e.g. average duration).
+
+        The *node_metrics* dict is expected to be of the form::
+
+            {
+                "summarizer": {"p95_duration": 8.4, "error_rate": 0.02},
+                "embedding": {"p95_duration": 2.1, "error_rate": 0.00}
+            }
+
+        A naive strategy is applied:
+        • If p95_duration > 10s → downgrade to *fast* model
+        • If p95_duration < 3s and error_rate < 1% → upgrade to *quality*
+        """
+        for node_type, stats in node_metrics.items():
+            p95 = stats.get("p95_duration", 0)
+            error_rate = stats.get("error_rate", 0)
+
+            if p95 > 10:
+                preferred = "fast"
+            elif p95 < 3 and error_rate < 0.01:
+                preferred = "quality"
+            else:
+                preferred = "balanced"
+
+            if node_type in self.model_configs and preferred in self.model_configs[node_type]:
+                # Reorder dict so that preferred becomes first lookup result
+                config = self.model_configs[node_type]
+                reordered = {preferred: config[preferred], **{k: v for k, v in config.items() if k != preferred}}
+                self.model_configs[node_type] = reordered
+                logger.debug(f"AdaptiveModelSelector: updated {node_type} preferred tier → {preferred}")
+
 
 class ParallelProcessor:
-    """Orchestrate parallel execution of independent nodes."""
+    """Utility for executing multiple independent LangGraph nodes in parallel.
+
+    InsightHub workflows often perform I/O-bound steps that are safe to run
+    concurrently (e.g. *summarizer* & *embedding* generation).  The
+    ``ParallelProcessor`` wraps a ``ThreadPoolExecutor`` and takes care of:
+
+    • Submitting node callables with the shared ``ContentState``
+    • Capturing per-node success / error metrics via :pyfunc:`get_monitor`
+    • Merging successful results back into an updated state object
+    • Propagating failures without stopping sibling tasks (errors are
+      aggregated and returned in the final state as *partial_failure*)
+
+    The class is intentionally lightweight – it does **not** attempt to handle
+    CPU-bound workloads (which should be off-loaded to separate processes) and
+    relies on the GIL-friendly nature of I/O heavy node implementations.
+    """
     
     def __init__(self, max_workers: int = 4):
         self.max_workers = max_workers
@@ -263,6 +475,10 @@ class OptimizedOrchestrator:
         self.model_selector = AdaptiveModelSelector()
         self.parallel_processor = ParallelProcessor()
         self.monitor = get_monitor()
+        # Lazy import to avoid circular dependency at module load time
+        from src.orchestrator.optimization_tuner import OptimizerMetricsTuner as _MetricsTuner
+
+        self._tuner: _MetricsTuner = _MetricsTuner(self.model_selector, self.retry_manager)
     
     async def process_with_optimizations(self, state: ContentState, nodes: Dict[str, Callable]) -> ContentState:
         """Process content with all optimizations enabled."""
@@ -287,6 +503,9 @@ class OptimizedOrchestrator:
             # Phase 3: Storage
             if "storage" in nodes:
                 state = await self.retry_manager.retry_with_backoff(nodes["storage"], state)
+            
+            # Periodic metrics-driven tuning
+            self._tuner.maybe_run()
             
             self.monitor.complete_workflow(workflow_id, "success")
             return state

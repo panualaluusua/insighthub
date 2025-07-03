@@ -10,6 +10,7 @@ from unittest.mock import Mock, patch
 import numpy as np
 from src.orchestrator.state import ContentState, create_content_state
 from src.orchestrator.nodes.embedding import EmbeddingNode
+from unittest.mock import ANY
 
 
 class TestEmbeddingNode:
@@ -39,7 +40,7 @@ class TestEmbeddingNode:
         # Verify OpenAI embeddings configuration
         mock_embeddings.assert_called_once_with(
             model="text-embedding-ada-002",
-            api_key=None  # Will use environment variable
+            api_key=ANY  # Allow env-provided key
         )
 
     @patch('src.orchestrator.nodes.embedding.OpenAIEmbeddings')

@@ -7,6 +7,7 @@ from src.orchestrator.nodes.summarizer import SummarizerNode
 from src.orchestrator.nodes.embedding import EmbeddingNode
 from src.orchestrator.nodes.content_scorer import ContentScorer
 from src.orchestrator.nodes.storage import StorageNode
+from src.orchestrator.nodes.error_handler import ErrorHandlerNode
 from typing import Any
 
 def create_orchestrator_graph() -> Any:
@@ -27,8 +28,8 @@ def create_orchestrator_graph() -> Any:
     builder.add_node("summarizer", SummarizerNode())
     builder.add_node("embedding", EmbeddingNode())
     builder.add_node("scorer", ContentScorer())
-    # StorageNode: wrap store_content as a callable for the graph
     builder.add_node("storage", lambda state: StorageNode().store_content(state))
+    builder.add_node("error_handler", ErrorHandlerNode())
 
     # Add edges for sequential processing
     builder.add_edge(START, "content_fetcher")

@@ -1,11 +1,16 @@
 import { defineConfig } from 'vitest/config';
 import { sveltekit } from '@sveltejs/kit/vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
 	plugins: [sveltekit()],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}'],
 		environment: 'jsdom',
+		environmentOptions: {
+			jsdom: {
+				resources: 'usable'
+			}
+		},
 		setupFiles: ['src/lib/test-utils/setup.ts'],
 		coverage: {
 			provider: 'v8',
@@ -34,6 +39,12 @@ export default defineConfig({
 			deps: {
 				inline: ['@testing-library/svelte']
 			}
-		}
+		},
+		threads: false
+	},
+	resolve: {
+		// This ensures that the browser version of Svelte is used in tests,
+		// which makes lifecycle functions like `onMount` available.
+		conditions: mode === 'test' ? ['browser'] : []
 	}
-}); 
+})); 
