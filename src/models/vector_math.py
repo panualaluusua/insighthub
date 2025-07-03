@@ -17,8 +17,28 @@ class FeedbackType(Enum):
     TOO_ADVANCED = "TOO_ADVANCED"
 
 
-def update_and_normalize_vector(old_vector, content_vector, weight):
-    """Update profile vector with weighted content vector and return a unit vector."""
+def update_and_normalize_vector(
+    old_vector: np.ndarray | list[float],
+    content_vector: np.ndarray | list[float],
+    weight: float,
+) -> np.ndarray:
+    """Return an updated, **unit-length** user profile vector.
+
+    Parameters
+    ----------
+    old_vector : np.ndarray | list[float]
+        The existing profile vector (\(v_{old}\)).
+    content_vector : np.ndarray | list[float]
+        The vector representation of the content item the user interacted with (\(v_{content}\)).
+    weight : float
+        Scalar in the range \([-1, 1]\) that determines update magnitude and direction. Positive
+        values move the profile *towards* the content, negative values *away*.
+
+    Returns
+    -------
+    np.ndarray
+        Normalised vector \(v_{new}\) such that \(\lVert v_{new} \rVert = 1\).
+    """
     old_vector = np.array(old_vector, dtype=np.float32)
     content_vector = np.array(content_vector, dtype=np.float32)
 

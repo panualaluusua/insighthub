@@ -36,4 +36,5 @@ async def submit_feedback(request: FeedbackRequest, background_tasks: Background
 
 @app.get("/health", tags=["health"])
 async def health_check() -> Dict[str, str]:
+    """Lightweight liveness probe for orchestrators & load-balancers."""
     return {"status": "ok"} 

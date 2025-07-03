@@ -21,6 +21,12 @@ class VectorStore:
 
     # --- Content vectors -------------------------------------------------
     def get_content_vector(self, content_id: str, dimension: int = 1536) -> np.ndarray:  # noqa: D401
+        """Return the vector for the given content item.
+
+        Implementations **must** return a *copy* or immutable view – callers may mutate the
+        returned array. If the vector does not exist, initialise a zero vector of the provided
+        dimension.
+        """
         raise NotImplementedError
 
     def save_content_vector(self, content_id: str, vector: np.ndarray) -> None:  # noqa: D401
